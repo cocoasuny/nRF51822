@@ -23,8 +23,8 @@
  */
 __WEAK void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
 {
-    NRF_LOG_ERROR("Fatal\r\n");
-    NRF_LOG_FINAL_FLUSH();
+    printf("Fatal\r\n");
+//    NRF_LOG_FINAL_FLUSH();
     // On assert, the system can only recover with a reset.
 #ifndef DEBUG
     NVIC_SystemReset();

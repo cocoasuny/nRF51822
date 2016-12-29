@@ -159,7 +159,7 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
     switch (ble_adv_evt)
     {
         case BLE_ADV_EVT_FAST:
-//            LEDS_ON(PERIPHERAL_ADVERTISING_LED);
+            bsp_led_toggle(LED2);
             break;
 
         case BLE_ADV_EVT_IDLE:

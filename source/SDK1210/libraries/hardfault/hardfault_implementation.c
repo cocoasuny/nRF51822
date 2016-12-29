@@ -22,6 +22,8 @@
 #define NRF_LOG_MODULE_NAME "HARDFAULT"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
+#include "app_uart.h"
+#include "bsp_uart.h"
 #if defined(DEBUG_NRF)
 /**
  * @brief Pointer to the last received stack pointer.
@@ -57,9 +59,15 @@ void HardFault_c_handler(uint32_t * p_stack_address)
             NRF_BREAKPOINT;
         }
     #endif // __CORTEX_M == 0x04
-#endif // DEBUG_NRF
-    printf("Hardfault PC:%x\r\n", ((HardFault_stack_t *)p_stack_address)->pc);
-		
+#endif // DEBUG_NRF  
+     
+    app_uart_close();
+    simple_uart_config();
+    char buf[100] = {0};
+    
+    sprintf(buf,"Hardfault PC:%x\r\n", ((HardFault_stack_t *)p_stack_address)->pc);
+    simple_uart_putstring((uint8_t *)buf);   
+    		
 //    NRF_LOG_FINAL_FLUSH();
     HardFault_process((HardFault_stack_t *)p_stack_address);
 }

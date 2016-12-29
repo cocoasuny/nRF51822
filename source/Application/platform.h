@@ -24,12 +24,16 @@
 #define HARDFAULT_HANDLER_ENABLED	1
 #define DEBUG_BLE_CONNECT
 
+/* shell debug switch --------------------------------------------------------*/
+#define SHELL_ENABLE
 
 /* task stack and priority define */
 #define BLE_TOP_IMPLEMENTATION_STACK					256
 #define BLE_TOP_IMPLEMENTATION_PRIORITY					2				
 
-
+/* Shell Task define */
+#define TASK_SHELLCTL_STACK                             1800
+#define TASK_SHELLCTL_PRIORITY                          1
 
 
 
@@ -51,7 +55,11 @@
 #define CTS_PIN_NUMBER 				10    // UART Clear To Send pin number. Not used if HWFC is set to false
 #define RTS_PIN_NUMBER 				8     // Not used if HWFC is set to false
 
-
+/* gpio define for leds */
+#define LED_1          21
+#define LED_2          22
+#define LED_3          23
+#define LED_4          24
 
 
 #endif /* __PLATFORM_H_ */

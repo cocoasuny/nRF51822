@@ -21,37 +21,19 @@ SemaphoreHandle_t 			g_semaphore_ble_event_ready = NULL;				/**< Semaphore raise
 DeviceInfomation_t  		g_DeviceInformation; //硬件设备信息
 
 /* private variables define */
-static TaskHandle_t 				m_logger_thread;					  	/**< Definition of Logger thread. */
+static TaskHandle_t 				m_shell_thread;					  	/**< Definition of Logger thread. */
 static TaskHandle_t 				m_ble_top_implementation_thread;      	/**< Definition of BLE stack thread. */
 
 
 /* private function declare*/
-static void logger_thread(void * arg);
 
-/**@brief Thread for handling the logger.
- *
- * @details This thread is responsible for processing log entries if logs are deferred.
- *          Thread flushes all log entries and suspends. It is resumed by idle task hook.
- *
- * @param[in]   arg   Pointer used for passing some arbitrary information (context) from the
- *                    osThreadCreate() call to the thread.
- */
-static void logger_thread(void * arg)
-{
-    UNUSED_PARAMETER(arg);
 
-    while(1)
-    {
-//		printf("Test\r\n");
-		vTaskDelay(1000);
-    }
-}
 /**@brief A function which is hooked to idle task.
  * @note Idle hook must be enabled in FreeRTOS configuration (configUSE_IDLE_HOOK).
  */
 void vApplicationIdleHook( void )
 {
-//     vTaskResume(m_logger_thread);
+
 }
 /**@brief Function for application main entry.
  */
@@ -79,12 +61,13 @@ int main(void)
 	{
 		APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
 	}
-	
+#ifdef SHELL_ENABLE	
 	/* creat a thread for logger */	
-    if (pdPASS != xTaskCreate(logger_thread, "LOG", 256, NULL, 1, &m_logger_thread))
+    if (pdPASS != xTaskCreate(shellCtlTask, "shell", TASK_SHELLCTL_STACK, NULL, TASK_SHELLCTL_PRIORITY, &m_shell_thread))
     {
         APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
     }
+#endif    
 	
 	// Start FreeRTOS scheduler.
     vTaskStartScheduler();

@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "shell.h"
 #include "platform.h"
 #include "bsp.h"
 #include "nrf_drv_clock.h"
@@ -32,6 +33,9 @@
 #include "ble_conn_state.h"
 #include "ble_service_passkey.h"
 #include "ble_service_checkup.h"
+#include "app_uart.h"
+#include "nordic_common.h"
+#include "app_error.h"
 
 
 

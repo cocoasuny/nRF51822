@@ -12,10 +12,19 @@
   *
   ****************************************************************************************
   */
+/* Includes ------------------------------------------------------------------*/
 #include "bsp.h"
 
-/* Includes ------------------------------------------------------------------*/
-
+/* Private variables ---------------------------------------------------------*/
+const char Dev_Msg[] =
+	"/*********************  This is to be Done ********************/\r\n"
+    "/*                                                            */\r\n"
+    "/*                                                            */\r\n"
+    "/*                  BSP Init Complate,Start...                */\r\n"
+#ifdef SHELL_ENABLE
+    "/*                  Pls enter help for more usages            */\r\n"
+#endif
+	"\r\n";
 /**
   * @brief  bsp init 
   * @note   This function is called  automatically at the beginning of program 
@@ -32,6 +41,8 @@ void bsp_init(void)
 	g_DeviceInformation.SeriNum[1] = 0x34;
 	g_DeviceInformation.SeriNum[2] = 0x56;
 	g_DeviceInformation.SeriNum[3] = 0x78;
+    
+    printf("%s",Dev_Msg);
 }
 
 

@@ -20,6 +20,7 @@
 #include "platform.h"
 #include "bsp_uart.h"
 #include "main.h"
+#include "bsp_led.h"
 
 void bsp_init(void);
 
