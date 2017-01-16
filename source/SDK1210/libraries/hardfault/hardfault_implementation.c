@@ -44,31 +44,16 @@ __WEAK void HardFault_process(HardFault_stack_t * p_stack)
 /*lint -restore */
 
 void HardFault_c_handler(uint32_t * p_stack_address)
-{
-#if defined(DEBUG_NRF)
-    HardFault_p_stack = (HardFault_stack_t *)p_stack_address;
-    (void)HardFault_p_stack;
-
-    // Debugger detection is only possible on NRF52 (Cortex-M4), on NRF51
-    // (Cortex-M0) the processor has no access to CoreDebug registers.
-    #if __CORTEX_M == 0x04
-        // C_DEBUGEN == 1 -> Debugger Connected
-        if (CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk)
-        {
-            /* Generate breakpoint if debugger is connected */
-            NRF_BREAKPOINT;
-        }
-    #endif // __CORTEX_M == 0x04
-#endif // DEBUG_NRF  
-     
+{    
     app_uart_close();
     simple_uart_config();
     char buf[100] = {0};
     
-    sprintf(buf,"Hardfault PC:%x\r\n", ((HardFault_stack_t *)p_stack_address)->pc);
-    simple_uart_putstring((uint8_t *)buf);   
-    		
-//    NRF_LOG_FINAL_FLUSH();
-    HardFault_process((HardFault_stack_t *)p_stack_address);
+    sprintf(buf,"Hardfault PC:%08x\r\n", ((HardFault_stack_t *)p_stack_address)->pc);
+    simple_uart_putstring((uint8_t *)buf);
+    
+    //Restart the system by default
+//    NVIC_SystemReset();
+    while(1);    		
 }
 #endif //HARDFAULT_HANDLER_ENABLED

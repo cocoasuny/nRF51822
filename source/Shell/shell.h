@@ -81,6 +81,6 @@ extern bool StrComp(void * buffer,void * StrCmd);   //字符串匹配比较函�
 extern void shellCtlTask(void *pvParameters);
 extern void Shell_ProcessorHandler(void);
 extern void Shell_Invalid_Service(void); //指令未处理服务(会处理shell_rx_rdy信号)  
-
+extern void Shell_BLE_Service(void);  
  
 #endif  

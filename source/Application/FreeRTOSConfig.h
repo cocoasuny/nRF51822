@@ -91,15 +91,15 @@
 
 #define configTICK_SOURCE FREERTOS_USE_RTC
 
-#define configUSE_PREEMPTION 1
+#define configUSE_PREEMPTION                                                      1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION                                   0
-#define configUSE_TICKLESS_IDLE 1
+#define configUSE_TICKLESS_IDLE                                                   1
 #define configUSE_TICKLESS_IDLE_SIMPLE_DEBUG                                      1 /* See into vPortSuppressTicksAndSleep source code for explanation */
 #define configCPU_CLOCK_HZ                                                        ( SystemCoreClock )
 #define configTICK_RATE_HZ                                                        1000
-#define configMAX_PRIORITIES                                                      ( 3 )
+#define configMAX_PRIORITIES                                                      ( 10 )
 #define configMINIMAL_STACK_SIZE                                                  ( 60 )
-#define configTOTAL_HEAP_SIZE                                                     ( 1024*10 )
+#define configTOTAL_HEAP_SIZE                                                     ( 1024*16 )
 #define configMAX_TASK_NAME_LEN                                                   ( 4 )
 #define configUSE_16_BIT_TICKS                                                    0
 #define configIDLE_SHOULD_YIELD                                                   1
@@ -107,14 +107,14 @@
 #define configUSE_RECURSIVE_MUTEXES                                               1
 #define configUSE_COUNTING_SEMAPHORES                                             1
 #define configUSE_ALTERNATIVE_API                                                 0    /* Deprecated! */
-#define configQUEUE_REGISTRY_SIZE                                                 2
+#define configQUEUE_REGISTRY_SIZE                                                 4
 #define configUSE_QUEUE_SETS                                                      0
 #define configUSE_TIME_SLICING                                                    0
 #define configUSE_NEWLIB_REENTRANT                                                0
 #define configENABLE_BACKWARD_COMPATIBILITY                                       1
 
 /* Hook function related definitions. */
-#define configUSE_IDLE_HOOK 1
+#define configUSE_IDLE_HOOK                                                       1
 #define configUSE_TICK_HOOK                                                       0
 #define configCHECK_FOR_STACK_OVERFLOW                                            0
 #define configUSE_MALLOC_FAILED_HOOK                                              0
@@ -129,10 +129,10 @@
 #define configMAX_CO_ROUTINE_PRIORITIES                                           ( 2 )
 
 /* Software timer definitions. */
-#define configUSE_TIMERS 1
-#define configTIMER_TASK_PRIORITY                                                 ( 2 )
+#define configUSE_TIMERS                                                          1
+#define configTIMER_TASK_PRIORITY                                                 ( 5 )
 #define configTIMER_QUEUE_LENGTH                                                  32
-#define configTIMER_TASK_STACK_DEPTH                                              ( 80 )
+#define configTIMER_TASK_STACK_DEPTH                                              ( 256 )
 
 /* Tickless Idle configuration. */
 #define configEXPECTED_IDLE_TIME_BEFORE_SLEEP                                     2

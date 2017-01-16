@@ -37,7 +37,12 @@
 #include "nordic_common.h"
 #include "app_error.h"
 
-
+/**@brief Variable length data encapsulation in terms of length and pointer to data. */
+typedef struct
+{
+  uint8_t * p_data; /**< Pointer to data. */
+  uint16_t data_len; /**< Length of data. */
+} data_t;
 
 /* type struct define */
 typedef struct
@@ -51,14 +56,38 @@ typedef struct
     uint8_t  protocolVersion;
 }DeviceInfomation_t;
 
+/*type struct define for ble scan list */
+typedef struct
+{
+    int8_t              rssi;
+    uint8_t             sn[SN_NUM_LEN];
+    ble_gap_addr_t      MACaddr;
+    bool                isValid;
+}BLE_SCAN_LIST_T;
+
+/* type struct define for ble handler task */
+typedef enum
+{
+    EVENT_APP_BLE_DEFAULT =0,
+    EVENT_APP_BLE_START_SCAN,
+    EVENT_APP_BLE_STOP_SCAN
+}BLE_EVENT_ID_T;
+
+typedef struct
+{
+    BLE_EVENT_ID_T      eventID;
+}BLE_MSG_T;
 
 
+/* Queue size define */
+#define BLE_EVENT_QUEUE_SIZE        10
 
 
 /* gloable variables declare */
-extern SemaphoreHandle_t 			g_semaphore_ble_event_ready;
-extern DeviceInfomation_t  			g_DeviceInformation; //硬件设备信息
-
+extern SemaphoreHandle_t            g_semaphore_ble_event_ready;
+extern DeviceInfomation_t  			g_DeviceInformation;                //硬件设备信息
+extern QueueHandle_t                g_bleEventQueue;                    //event queue for ble
+extern BLE_SCAN_LIST_T              gScanList[];  
 
 #endif // __MAIN__
 

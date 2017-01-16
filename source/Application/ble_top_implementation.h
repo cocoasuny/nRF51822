@@ -36,10 +36,11 @@
                                  .rc_ctiv       = 0,                                \
                                  .rc_temp_ctiv  = 0,                                \
                                  .xtal_accuracy = NRF_CLOCK_LF_XTAL_ACCURACY_20_PPM}
+                           
 
 
 void ble_top_implementation_thread(void * arg);
-
+void ble_event_handler_thread(void * arg);
 
 
 

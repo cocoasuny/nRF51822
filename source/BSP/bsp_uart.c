@@ -33,7 +33,9 @@ static void uart_event_handle(app_uart_evt_t * p_event)
     {
         case APP_UART_DATA_READY:
             UNUSED_VARIABLE(app_uart_get(&cr));
-            HAL_UART_RxCpltCallback(cr);
+            #ifdef SHELL_ENABLE
+                HAL_UART_RxCpltCallback(cr);
+            #endif
             break;
 
         case APP_UART_COMMUNICATION_ERROR:

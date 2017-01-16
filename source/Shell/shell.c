@@ -68,8 +68,7 @@ const char Shell_HelpMsg[] =
     "*                                                              *\r\n"
 	"*      Please Enter [ModuleName help] for more info            *\r\n" 
 	"*      Available Shell Modules:                                *\r\n"
-	"*      rtc                                                     *\r\n"
-    "*      fil                                                     *\r\n"
+	"*      ble                                                     *\r\n"
 	"================================================================\r\n"
 	"\r\n";
 
@@ -321,15 +320,10 @@ void Shell_ProcessorHandler(void)
 {
 	if(shell_rx_rdy)
 	{
-		#ifdef RTC_SHELL
-			Shell_RTC_Service();
+		#ifdef SHELL_BLE_ENABLE
+			Shell_BLE_Service();
 		#endif
-		#ifdef BLUENRG_CENTRAL_SHELL
-			Shell_BlueNRG_Central_Service();
-		#endif
-		#ifdef FATFS_SHELL
-			Shell_Fatfs_Service();
-		#endif
+
 		Shell_Invalid_Service();  //指令无效的缺省处理
 	}
 }
@@ -343,17 +337,33 @@ void Shell_ProcessorHandler(void)
   */
 void shellCtlTask(void *pvParameters)
 {
+    uint8_t cnt=0;
+    BLE_MSG_T               bleEventMsgValue;
+    const TickType_t        xTicksToWait = 100 / portTICK_PERIOD_MS; /* 最大等待时间100ms */  
+    
     /* Led Init */
     bsp_led_init(LED1);
     bsp_led_init(LED2);
     
     while(1)
     {
-#ifdef SHELL_ENABLE			
-		Shell_ProcessorHandler();     //Shell处理函数
-#endif	
-       bsp_led_toggle(LED1);
-       vTaskDelay(500); 
+    #ifdef SHELL_ENABLE			
+        Shell_ProcessorHandler();     //Shell处理函数
+    #endif	
+        bsp_led_toggle(LED1);
+        
+        cnt++;
+        if(cnt >= 10)
+        {
+            cnt=0;
+            bleEventMsgValue.eventID = EVENT_APP_BLE_START_SCAN;
+            if(xQueueSend(g_bleEventQueue,(void *)&bleEventMsgValue,xTicksToWait) != pdPASS)
+            {
+                APP_ERROR_CHECK(pdFAIL);
+            }              
+        }
+            
+        vTaskDelay(500); 
     }
 }
 

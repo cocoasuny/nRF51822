@@ -23,13 +23,19 @@
 /* debug switch --------------------------------------------------------------*/
 #define HARDFAULT_HANDLER_ENABLED	1
 #define DEBUG_BLE_CONNECT
+#define DEBUG_BLE_EVENT
+#define DEBUG_BLE_SCAN
 
 /* shell debug switch --------------------------------------------------------*/
 #define SHELL_ENABLE
+#define SHELL_BLE_ENABLE
 
-/* task stack and priority define */
-#define BLE_TOP_IMPLEMENTATION_STACK					256
-#define BLE_TOP_IMPLEMENTATION_PRIORITY					2				
+/* task stack and priority define(priority值越大，优先级越高) */
+#define BLE_TOP_IMPLEMENTATION_STACK					1000
+#define BLE_TOP_IMPLEMENTATION_PRIORITY					8	
+
+#define BLE_EVENT_HANDLER_STACK					        256
+#define BLE_EVENT_HANDLER_PRIORITY					    6		
 
 /* Shell Task define */
 #define TASK_SHELLCTL_STACK                             1800
@@ -44,7 +50,7 @@
 #define APP_UART_ENABLED	1
 #define RETARGET_ENABLED	1
 #ifndef UART_TX_BUF_SIZE
-    #define UART_TX_BUF_SIZE 1024         /**< UART TX buffer size. */
+    #define UART_TX_BUF_SIZE 512         /**< UART TX buffer size. */
 #endif
 #ifndef UART_RX_BUF_SIZE
     #define UART_RX_BUF_SIZE 1            /**< UART RX buffer size. */
@@ -61,6 +67,11 @@
 #define LED_3          23
 #define LED_4          24
 
+/* 停止扫描定时器定义 */
+#define STOP_SCAN_TIME      3000 / portTICK_PERIOD_MS  //扫描5s后停止扫描
+#define DEFAULT_REF_RSSI    -70  //默认参考蓝牙信号强度值，大于改信号质量的设备才进入扫描队列
+#define MAX_SCAN_LIST_NUM   10   //最大支持扫描列表数量
+#define SN_NUM_LEN          4    //序列号长度：4字节
 
 #endif /* __PLATFORM_H_ */
 

@@ -17,12 +17,15 @@
 
 /* gloable variables define */
 SemaphoreHandle_t 			g_semaphore_ble_event_ready = NULL;				/**< Semaphore raised if there is a new event to be 
-																				processed in the BLE thread. */
-DeviceInfomation_t  		g_DeviceInformation; //硬件设备信息
+                                                                                processed in the BLE thread. */
+DeviceInfomation_t  		g_DeviceInformation;                            //硬件设备信息
+QueueHandle_t               g_bleEventQueue = NULL;                         //event queue for ble
+BLE_SCAN_LIST_T             gScanList[MAX_SCAN_LIST_NUM];                   //扫描列表
 
 /* private variables define */
-static TaskHandle_t 				m_shell_thread;					  	/**< Definition of Logger thread. */
+static TaskHandle_t 				m_shell_thread;					  	    /**< Definition of Logger thread. */
 static TaskHandle_t 				m_ble_top_implementation_thread;      	/**< Definition of BLE stack thread. */
+static TaskHandle_t 				m_ble_event_handler_thread;      	    /**< Definition of ble event handler thread. */
 
 
 /* private function declare*/
@@ -61,6 +64,15 @@ int main(void)
 	{
 		APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
 	}
+    
+	/* creat a thread for ble event handler thread*/
+	if(
+		pdPASS != xTaskCreate(ble_event_handler_thread,"ble",BLE_EVENT_HANDLER_STACK,NULL,
+							  	BLE_EVENT_HANDLER_PRIORITY,&m_ble_event_handler_thread)
+	)
+	{
+		APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
+	}    
 #ifdef SHELL_ENABLE	
 	/* creat a thread for logger */	
     if (pdPASS != xTaskCreate(shellCtlTask, "shell", TASK_SHELLCTL_STACK, NULL, TASK_SHELLCTL_PRIORITY, &m_shell_thread))
@@ -72,9 +84,10 @@ int main(void)
 	// Start FreeRTOS scheduler.
     vTaskStartScheduler();
 	
+    printf("OS Scheduler Err\r\n");
 	while(1)
 	{
-		APP_ERROR_HANDLER(NRF_ERROR_FORBIDDEN);
+		
 	}
 }
 

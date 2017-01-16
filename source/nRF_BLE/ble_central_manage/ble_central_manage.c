@@ -24,7 +24,7 @@ static ble_db_discovery_t m_ble_db_discovery[CENTRAL_LINK_COUNT + PERIPHERAL_LIN
 
 /* private function decalre --------------------------------------------------*/
 static void scan_advertise_data_report(const ble_gap_evt_adv_report_t *adv_report);
-
+static uint32_t adv_report_parse(uint8_t type, data_t * p_advdata, data_t * p_typedata);
 
 /**
  * @brief Parameters used when scanning.
@@ -51,9 +51,9 @@ static const ble_gap_scan_params_t m_scan_params =
   * @param  None
   * @retval None
   */
-void scan_start(void)
+ret_code_t scan_start(void)
 {
-    ret_code_t err_code;
+    ret_code_t      err_code = NRF_SUCCESS;
 
     (void) sd_ble_gap_scan_stop();
 
@@ -62,7 +62,8 @@ void scan_start(void)
     if (err_code != NRF_ERROR_INVALID_STATE)
     {
         APP_ERROR_CHECK(err_code);
-    }       
+    }
+    return err_code;
 }
 
 /**
@@ -71,9 +72,13 @@ void scan_start(void)
   * @param  None
   * @retval None
   */
-void scan_stop(void)
+ret_code_t scan_stop(void)
 {
-	sd_ble_gap_scan_stop();
+    ret_code_t      err_code = NRF_SUCCESS;
+    
+	err_code = sd_ble_gap_scan_stop();
+    
+    return err_code;
 }
 
 /**
@@ -113,8 +118,7 @@ void on_ble_central_evt(const ble_evt_t * const p_ble_evt)
             /** check if we should be looking for more peripherals to connect to. */
             if (ble_conn_state_n_centrals() <= CENTRAL_LINK_COUNT)
             {
-                 // Resume scanning.
-                scan_start();
+
             }
             else
             {
@@ -129,47 +133,12 @@ void on_ble_central_evt(const ble_evt_t * const p_ble_evt)
 				printf("CENTRAL: disconnected (reason: %d)\r\n",p_gap_evt->params.disconnected.reason);
 			#endif
             
-			// Start scanning
-			scan_start();
         } break; // BLE_GAP_EVT_DISCONNECTED
 
         case BLE_GAP_EVT_ADV_REPORT:
         {
 			scan_advertise_data_report(&p_gap_evt->params.adv_report);
-//            if (strlen(m_target_periph_name) != 0)
-//            {
-//                if (find_adv_name(&p_gap_evt->params.adv_report, m_target_periph_name))
-//                {
-//                    // Initiate connection.
-//                    NRF_LOG_INFO("central connecting ...\r\n");
-//                    err_code = sd_ble_gap_connect(&p_gap_evt->params.adv_report.peer_addr,
-//                                                  &m_scan_params,
-//                                                  &m_connection_param);
-//                    if (err_code != NRF_SUCCESS)
-//                    {
-//                        printf("Connection Request Failed, reason %d\r\n", err_code);
-//                    }
-//                }
-//            }
-//            else
-//            {
-//               /** We do not want to connect to two peripherals offering the same service, so when
-//                *  a UUID is matched, we check that we are not already connected to a peer which
-//                *  offers the same service. */
-//                if (find_adv_uuid(&p_gap_evt->params.adv_report, BLE_UUID_HEART_RATE_SERVICE)&&
-//                     (m_conn_handle_hrs_c == BLE_CONN_HANDLE_INVALID))
-//                {
-//                    // Initiate connection.
-//                    NRF_LOG_INFO("CENTRAL: connecting ...\r\n");
-//                    err_code = sd_ble_gap_connect(&p_gap_evt->params.adv_report.peer_addr,
-//                                                  &m_scan_params,
-//                                                  &m_connection_param);
-//                    if (err_code != NRF_SUCCESS)
-//                    {
-//                        printf("CENTRAL: Connection Request Failed, reason %d\r\n", err_code);
-//                    }
-//                }
-//            }
+
         } break; // BLE_GAP_ADV_REPORT
 
         case BLE_GAP_EVT_TIMEOUT:
@@ -232,7 +201,14 @@ void on_ble_central_evt(const ble_evt_t * const p_ble_evt)
   */
 static void scan_advertise_data_report(const ble_gap_evt_adv_report_t *adv_report)
 {
-//	uint8_t				i = 0;
+	uint8_t				i = 0;
+    data_t              sn;
+    data_t              adv_data;
+    data_t              advUUID;
+    uint32_t            SN_Dec = 0;         //十进制形式的序列号
+    uint16_t            UUID=0;             //提取广播中的服务ID，以识别是云卫康设备
+    
+    
 	#ifdef DEBUG_BLE_CONNECT
 //		printf("peer addr:0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,\r\n",adv_report->peer_addr.addr[0],\
 //											adv_report->peer_addr.addr[1],adv_report->peer_addr.addr[2],\
@@ -243,11 +219,93 @@ static void scan_advertise_data_report(const ble_gap_evt_adv_report_t *adv_repor
 //		{
 //			printf("0x%x, ",adv_report->data[i]);
 //		}
+//        printf("rssi:%d",adv_report->rssi);
 //		printf("\r\n");
 	#endif
+    
+    if(adv_report->rssi > DEFAULT_REF_RSSI)
+    {
+        
+        for(i=0;i<MAX_SCAN_LIST_NUM;i++)
+        {
+            if(gScanList[i].isValid == true) //找到可以存放的位置
+            {
+                break;
+            }
+        }
+                
+        // Initialize advertisement report for parsing.
+        adv_data.p_data = (uint8_t *) adv_report->data;
+        adv_data.data_len = adv_report->dlen;
+        
+        /* 判断是云卫康的设备 */
+        uint8_t j=0;
+		printf("Adv Data len:%d, data:",adv_data.data_len);
+		for(j=0;j<adv_data.data_len;j++)
+		{
+			printf("0x%x, ",adv_data.p_data[j]);
+		}
+		printf("\r\n");        
+        printf("start anaylise\r\n");
+        
+        adv_report_parse(BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_COMPLETE,&adv_data,&advUUID);
+        printf("stop anaylise\r\n");
+        UUID = (uint16_t)((advUUID.p_data[1]<<8) + advUUID.p_data[0]);
+        if(UUID == YWK_DEVICE_CONFIRM_UUID)  //是云卫康设备
+        {    
+            /* 获取设备SN */
+            adv_report_parse(BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA,&adv_data,&sn);
+            
+            SN_Dec = (uint32_t)((sn.p_data[0]<<24)+(sn.p_data[1]<<16)+(sn.p_data[2]<<8)+sn.p_data[3]<<0);
+            printf("SN:%d,RSSI:%d,i:%d\r\n",SN_Dec,adv_report->rssi,i);
+            if(SN_Dec != 0)  //手环序列号不为0才处理
+            {
+                printf("copy start\r\n");
+                memcpy(gScanList[i].sn,sn.p_data,SN_NUM_LEN);
+                memcpy(gScanList[i].MACaddr.addr,adv_report->peer_addr.addr,BLE_GAP_ADDR_LEN);
+                printf("copy end\r\n");
+                gScanList[i].MACaddr.addr_type = adv_report->peer_addr.addr_type;
+                gScanList[i].isValid = false;
+                gScanList[i].rssi = adv_report->rssi;
+            }
+        }
+    }
 }
 
+/**
+ * @brief Parses advertisement data, providing length and location of the field in case
+ *        matching data is found.
+ *
+ * @param[in]  Type of data to be looked for in advertisement data.
+ * @param[in]  Advertisement report length and pointer to report.
+ * @param[out] If data type requested is found in the data report, type data length and
+ *             pointer to data will be populated here.
+ *
+ * @retval NRF_SUCCESS if the data type is found in the report.
+ * @retval NRF_ERROR_NOT_FOUND if the data type could not be found.
+ */
+static uint32_t adv_report_parse (uint8_t type, data_t * p_advdata, data_t * p_typedata)
+{
+    uint32_t index = 0;
+    uint8_t * p_data;
 
+    p_data = p_advdata->p_data;
+
+    while (index < p_advdata->data_len)
+    {
+        uint8_t field_length = p_data[index];
+        uint8_t field_type = p_data[index + 1];
+
+        if (field_type == type)
+        {
+            p_typedata->p_data = &p_data[index + 2];
+            p_typedata->data_len = field_length - 1;
+            return NRF_SUCCESS;
+        }
+        index += field_length + 1;
+    }
+    return NRF_ERROR_NOT_FOUND;
+}
 
 /************************ (C) COPYRIGHT Chengdu CloudCare Healthcare Co., Ltd. *****END OF FILE****/
 
