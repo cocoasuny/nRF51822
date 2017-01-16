@@ -36,6 +36,12 @@
 extern "C" {
 #endif
 
+#define TIMER0_ENABLED 0
+#define TIMER1_ENABLED 0
+#define TIMER2_ENABLED 2
+#define TIMER3_ENABLED 0
+#define TIMER4_ENABLED 0    
+    
 /**
  * @brief Timer driver instance data structure.
  */

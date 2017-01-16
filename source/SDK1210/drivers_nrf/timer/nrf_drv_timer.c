@@ -11,9 +11,7 @@
  */
 
 #include "sdk_config.h"
-#if TIMER_ENABLED
 #define ENABLED_TIMER_COUNT (TIMER0_ENABLED+TIMER1_ENABLED+TIMER2_ENABLED+TIMER3_ENABLED+TIMER4_ENABLED)
-#if ENABLED_TIMER_COUNT
 #include "nrf_drv_timer.h"
 #include "nrf_drv_common.h"
 #include "app_util_platform.h"
@@ -265,6 +263,5 @@ void TIMER4_IRQHandler(void)
     irq_handler(NRF_TIMER4, &m_cb[TIMER4_INSTANCE_INDEX],
         NRF_TIMER_CC_CHANNEL_COUNT(4));
 }
-#endif
-#endif // ENABLED_TIMER_COUNT
+
 #endif // TIMER_ENABLED

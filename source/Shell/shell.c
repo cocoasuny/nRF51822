@@ -350,7 +350,7 @@ void shellCtlTask(void *pvParameters)
     #ifdef SHELL_ENABLE			
         Shell_ProcessorHandler();     //Shell处理函数
     #endif	
-        bsp_led_toggle(LED1);
+//        bsp_led_toggle(LED1);
         
         cnt++;
         if(cnt >= 10)

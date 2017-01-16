@@ -91,7 +91,6 @@
 #include "nrf_rtc.h"
 #include "nrf_drv_clock.h"
 
-
 /*-----------------------------------------------------------*/
 
 void xPortSysTickHandler( void )

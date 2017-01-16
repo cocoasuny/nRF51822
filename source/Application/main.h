@@ -36,6 +36,7 @@
 #include "app_uart.h"
 #include "nordic_common.h"
 #include "app_error.h"
+#include "system_info_test.h"
 
 /**@brief Variable length data encapsulation in terms of length and pointer to data. */
 typedef struct

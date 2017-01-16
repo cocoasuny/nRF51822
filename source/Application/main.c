@@ -48,7 +48,8 @@ int main(void)
 	/* bsp init */
 	bsp_init();
 	
-	
+	system_info_test_timer_init(); 
+    
 	/* Init a semaphore for the BLE thread. */
     g_semaphore_ble_event_ready = xSemaphoreCreateBinary();
     if (NULL == g_semaphore_ble_event_ready)
@@ -79,8 +80,8 @@ int main(void)
     {
         APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
     }
-#endif    
-	
+#endif  
+
 	// Start FreeRTOS scheduler.
     vTaskStartScheduler();
 	

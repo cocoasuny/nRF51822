@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>BLE_STACK_SUPPORT_REQD __STACK_SIZE=2048 __HEAP_SIZE=1024 NRF51422 BOARD_PCA10028 S130 NRF_SD_BLE_API_VERSION=2 NRF51 SOFTDEVICE_PRESENT FREERTOS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\source\Application;..\source\BSP;..\source\Drivers;..\source\Middlewares\freertos;..\source\Middlewares\freertos\source\include;..\source\Middlewares\freertos\portable\ARM\nrf51;..\source\Middlewares\freertos\portable\CMSIS\nrf51;..\source\SDK1210\softdevice\common\softdevice_handler;..\source\SDK1210\softdevice\s130\headers;..\source\SDK1210\libraries\util;..\source\SDK1210\drivers_nrf\hal;..\source\SDK1210\drivers_nrf\clock;..\source\SDK1210\drivers_nrf\common;..\source\SDK1210\libraries\log;..\source\SDK1210\libraries\log\src;..\source\SDK1210\libraries\uart;..\source\SDK1210\libraries\fifo;..\source\SDK1210\libraries;..\source\SDK1210\drivers_nrf;..\source\SDK1210\drivers_nrf\uart;..\source\nRF_BLE\ble_advertising;..\source\nRF_BLE\ble_db_discovery;..\source\nRF_BLE\common;..\source\SDK1210\libraries\fstorage;..\source\SDK1210\libraries\experimental_section_vars;..\source\SDK1210\libraries\timer;..\source\nRF_BLE\ble_central_manage;..\source\nRF_BLE\ble_peripheral_services;..\source\Shell</IncludePath>
+              <IncludePath>..\source\Application;..\source\BSP;..\source\Drivers;..\source\Middlewares\freertos;..\source\Middlewares\freertos\source\include;..\source\Middlewares\freertos\portable\ARM\nrf51;..\source\Middlewares\freertos\portable\CMSIS\nrf51;..\source\SDK1210\softdevice\common\softdevice_handler;..\source\SDK1210\softdevice\s130\headers;..\source\SDK1210\libraries\util;..\source\SDK1210\drivers_nrf\hal;..\source\SDK1210\drivers_nrf\clock;..\source\SDK1210\drivers_nrf\common;..\source\SDK1210\libraries\log;..\source\SDK1210\libraries\log\src;..\source\SDK1210\libraries\uart;..\source\SDK1210\libraries\fifo;..\source\SDK1210\libraries;..\source\SDK1210\drivers_nrf;..\source\SDK1210\drivers_nrf\uart;..\source\nRF_BLE\ble_advertising;..\source\nRF_BLE\ble_db_discovery;..\source\nRF_BLE\common;..\source\SDK1210\libraries\fstorage;..\source\SDK1210\libraries\experimental_section_vars;..\source\SDK1210\libraries\timer;..\source\nRF_BLE\ble_central_manage;..\source\nRF_BLE\ble_peripheral_services;..\source\Shell;..\source\SDK1210\drivers_nrf\timer</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -415,6 +415,11 @@
               <FileType>1</FileType>
               <FilePath>..\source\Application\ble_top_implementation.c</FilePath>
             </File>
+            <File>
+              <FileName>system_info_test.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\Application\system_info_test.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -454,6 +459,11 @@
               <FileName>nrf_drv_uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\SDK1210\drivers_nrf\uart\nrf_drv_uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>nrf_drv_timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\SDK1210\drivers_nrf\timer\nrf_drv_timer.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -521,11 +531,6 @@
               <FilePath>..\source\Middlewares\freertos\source\event_groups.c</FilePath>
             </File>
             <File>
-              <FileName>heap_1.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\Middlewares\freertos\source\portable\MemMang\heap_1.c</FilePath>
-            </File>
-            <File>
               <FileName>list.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\Middlewares\freertos\source\list.c</FilePath>
@@ -559,6 +564,11 @@
               <FileName>timers.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\Middlewares\freertos\source\timers.c</FilePath>
+            </File>
+            <File>
+              <FileName>heap_4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\Middlewares\freertos\source\portable\MemMang\heap_4.c</FilePath>
             </File>
           </Files>
         </Group>
