@@ -344,13 +344,20 @@ void shellCtlTask(void *pvParameters)
     /* Led Init */
     bsp_led_init(LED1);
     bsp_led_init(LED2);
+
+#ifdef DEBUG_CPU_USAGE    
+    system_info_test_timer_init();
+#endif    
     
     while(1)
     {
     #ifdef SHELL_ENABLE			
         Shell_ProcessorHandler();     //Shell处理函数
     #endif	
-//        bsp_led_toggle(LED1);
+        bsp_led_toggle(LED1);
+    #ifdef DEBUG_CPU_USAGE
+        get_system_run_status();
+    #endif
         
         cnt++;
         if(cnt >= 10)

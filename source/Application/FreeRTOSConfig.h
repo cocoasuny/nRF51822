@@ -93,23 +93,23 @@
 
 #define configUSE_PREEMPTION                                                      1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION                                   0
-#define configUSE_TICKLESS_IDLE                                                   1
-#define configUSE_TICKLESS_IDLE_SIMPLE_DEBUG                                      1 /* See into vPortSuppressTicksAndSleep source code for explanation */
+#define configUSE_TICKLESS_IDLE                                                   0
+#define configUSE_TICKLESS_IDLE_SIMPLE_DEBUG                                      0 /* See into vPortSuppressTicksAndSleep source code for explanation */
 #define configCPU_CLOCK_HZ                                                        ( SystemCoreClock )
 #define configTICK_RATE_HZ                                                        1000
 #define configMAX_PRIORITIES                                                      ( 10 )
 #define configMINIMAL_STACK_SIZE                                                  ( 60 )
 #define configTOTAL_HEAP_SIZE                                                     ( 1024*16 )
-#define configMAX_TASK_NAME_LEN                                                   ( 4 )
+#define configMAX_TASK_NAME_LEN                                                   ( 10 )
 #define configUSE_16_BIT_TICKS                                                    0
 #define configIDLE_SHOULD_YIELD                                                   1
 #define configUSE_MUTEXES                                                         1
-#define configUSE_RECURSIVE_MUTEXES                                               1
-#define configUSE_COUNTING_SEMAPHORES                                             1
+#define configUSE_RECURSIVE_MUTEXES                                               0
+#define configUSE_COUNTING_SEMAPHORES                                             0
 #define configUSE_ALTERNATIVE_API                                                 0    /* Deprecated! */
-#define configQUEUE_REGISTRY_SIZE                                                 4
-#define configUSE_QUEUE_SETS                                                      0
-#define configUSE_TIME_SLICING                                                    0
+#define configQUEUE_REGISTRY_SIZE                                                 10
+#define configUSE_QUEUE_SETS                                                      1
+#define configUSE_TIME_SLICING                                                    1
 #define configUSE_NEWLIB_REENTRANT                                                0
 #define configENABLE_BACKWARD_COMPATIBILITY                                       1
 
@@ -120,9 +120,12 @@
 #define configUSE_MALLOC_FAILED_HOOK                                              0
 
 /* Run time and task stats gathering related definitions. */
-#define configGENERATE_RUN_TIME_STATS                                             0
-#define configUSE_TRACE_FACILITY                                                  0
-#define configUSE_STATS_FORMATTING_FUNCTIONS                                      0
+extern volatile uint32_t ulHighFrequencyTimerTicks;
+#define configGENERATE_RUN_TIME_STATS                                             1
+#define configUSE_TRACE_FACILITY                                                  1
+#define configUSE_STATS_FORMATTING_FUNCTIONS                                      1
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()                                  (ulHighFrequencyTimerTicks = 0ul)
+#define portGET_RUN_TIME_COUNTER_VALUE()                                          ulHighFrequencyTimerTicks
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES                                                     0
@@ -131,8 +134,8 @@
 /* Software timer definitions. */
 #define configUSE_TIMERS                                                          1
 #define configTIMER_TASK_PRIORITY                                                 ( 5 )
-#define configTIMER_QUEUE_LENGTH                                                  32
-#define configTIMER_TASK_STACK_DEPTH                                              ( 256 )
+#define configTIMER_QUEUE_LENGTH                                                  ( 1 )
+#define configTIMER_TASK_STACK_DEPTH                                              ( 1200 )
 
 /* Tickless Idle configuration. */
 #define configEXPECTED_IDLE_TIME_BEFORE_SLEEP                                     2
@@ -152,15 +155,15 @@
 #define INCLUDE_vTaskPrioritySet                                                  1
 #define INCLUDE_uxTaskPriorityGet                                                 1
 #define INCLUDE_vTaskDelete                                                       1
-#define INCLUDE_vTaskSuspend 1
+#define INCLUDE_vTaskSuspend                                                      1
 #define INCLUDE_xResumeFromISR                                                    1
-#define INCLUDE_vTaskDelayUntil                                                   1
+#define INCLUDE_vTaskDelayUntil                                                   0
 #define INCLUDE_vTaskDelay                                                        1
 #define INCLUDE_xTaskGetSchedulerState                                            1
 #define INCLUDE_xTaskGetCurrentTaskHandle                                         1
-#define INCLUDE_uxTaskGetStackHighWaterMark                                       1
+#define INCLUDE_uxTaskGetStackHighWaterMark                                       0
 #define INCLUDE_xTaskGetIdleTaskHandle                                            1
-#define INCLUDE_xTimerGetTimerDaemonTaskHandle                                    1
+#define INCLUDE_xTimerGetTimerDaemonTaskHandle                                    0
 #define INCLUDE_pcTaskGetTaskName                                                 1
 #define INCLUDE_eTaskGetState                                                     1
 #define INCLUDE_xEventGroupSetBitFromISR                                          1

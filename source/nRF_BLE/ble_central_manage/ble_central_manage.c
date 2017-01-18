@@ -238,18 +238,8 @@ static void scan_advertise_data_report(const ble_gap_evt_adv_report_t *adv_repor
         adv_data.p_data = (uint8_t *) adv_report->data;
         adv_data.data_len = adv_report->dlen;
         
-        /* 判断是云卫康的设备 */
-        uint8_t j=0;
-		printf("Adv Data len:%d, data:",adv_data.data_len);
-		for(j=0;j<adv_data.data_len;j++)
-		{
-			printf("0x%x, ",adv_data.p_data[j]);
-		}
-		printf("\r\n");        
-        printf("start anaylise\r\n");
-        
+        /* 判断是云卫康的设备 */            
         adv_report_parse(BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_COMPLETE,&adv_data,&advUUID);
-        printf("stop anaylise\r\n");
         UUID = (uint16_t)((advUUID.p_data[1]<<8) + advUUID.p_data[0]);
         if(UUID == YWK_DEVICE_CONFIRM_UUID)  //是云卫康设备
         {    
@@ -260,10 +250,8 @@ static void scan_advertise_data_report(const ble_gap_evt_adv_report_t *adv_repor
             printf("SN:%d,RSSI:%d,i:%d\r\n",SN_Dec,adv_report->rssi,i);
             if(SN_Dec != 0)  //手环序列号不为0才处理
             {
-                printf("copy start\r\n");
                 memcpy(gScanList[i].sn,sn.p_data,SN_NUM_LEN);
                 memcpy(gScanList[i].MACaddr.addr,adv_report->peer_addr.addr,BLE_GAP_ADDR_LEN);
-                printf("copy end\r\n");
                 gScanList[i].MACaddr.addr_type = adv_report->peer_addr.addr_type;
                 gScanList[i].isValid = false;
                 gScanList[i].rssi = adv_report->rssi;

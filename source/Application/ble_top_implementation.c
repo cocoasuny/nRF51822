@@ -111,6 +111,13 @@ void ble_event_handler_thread(void * arg)
         
     /* ble event queue init */
     bleEventMsgValue.eventID = EVENT_APP_BLE_DEFAULT;
+        
+    /* 分配timer控制扫描时间 */
+    scanCTL_Timer = xTimerCreate("scanTime",STOP_SCAN_TIME,pdFALSE,(void *)0,vTimerStopBleScanCB);
+    if(scanCTL_Timer == NULL)
+    {
+        APP_ERROR_CHECK(pdFALSE);
+    }        
     
     while(1)
     {
@@ -132,12 +139,12 @@ void ble_event_handler_thread(void * arg)
                         /* 清空扫描列表 */
                         reset_scan_list();
                         
-                        /* 分配timer控制扫描时间 */
-                        scanCTL_Timer = xTimerCreate("scanTime",STOP_SCAN_TIME,pdFALSE,(void *)0,vTimerStopBleScanCB);
-                        if(scanCTL_Timer == NULL)
-                        {
-                            APP_ERROR_CHECK(pdFALSE);
-                        }
+                        /* stop the timer of scan control */
+                        if(xTimerStop(scanCTL_Timer,xMaxBlockTime) != pdPASS)
+						{
+							APP_ERROR_CHECK(pdFALSE);
+						}                        
+                        /* start the timer of scan control */
                         if(xTimerStart(scanCTL_Timer,xMaxBlockTime) != pdPASS)
 						{
 							APP_ERROR_CHECK(pdFALSE);
@@ -148,7 +155,8 @@ void ble_event_handler_thread(void * arg)
                     {
                         #ifdef DEBUG_BLE_SCAN
                             printf("stop scan\r\n");
-                        #endif
+                        #endif 
+                        
                         /* stop ble scan */
                         stop_ble_scan();
                         
@@ -347,8 +355,12 @@ static uint32_t ble_new_event_handler(void)
 
     // The returned value may be safely ignored, if error is returned it only means that
     // the semaphore is already given (raised).
-    UNUSED_VARIABLE(xSemaphoreGiveFromISR(g_semaphore_ble_event_ready, &yield_req));
-    portYIELD_FROM_ISR(yield_req);
+    xSemaphoreGiveFromISR(g_semaphore_ble_event_ready, &yield_req);
+    
+    if(yield_req == pdTRUE)
+    {
+        portYIELD_FROM_ISR(yield_req);
+    }
     return NRF_SUCCESS;
 }
 

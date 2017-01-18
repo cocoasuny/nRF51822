@@ -20,7 +20,7 @@
 #include "main.h"
 
 void system_info_test_timer_init(void);
-
+void get_system_run_status(void);
 
 #endif // _SYSTEM_INFO_TESY_
 

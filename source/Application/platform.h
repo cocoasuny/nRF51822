@@ -25,10 +25,11 @@
 #define DEBUG_BLE_CONNECT
 #define DEBUG_BLE_EVENT
 #define DEBUG_BLE_SCAN
+#define DEBUG_CPU_USAGE
 
 /* shell debug switch --------------------------------------------------------*/
 #define SHELL_ENABLE
-#define SHELL_BLE_ENABLE
+//#define SHELL_BLE_ENABLE
 
 /* task stack and priority define(priority值越大，优先级越高) */
 #define BLE_TOP_IMPLEMENTATION_STACK					1000
@@ -38,7 +39,7 @@
 #define BLE_EVENT_HANDLER_PRIORITY					    6		
 
 /* Shell Task define */
-#define TASK_SHELLCTL_STACK                             1800
+#define TASK_SHELLCTL_STACK                             1300
 #define TASK_SHELLCTL_PRIORITY                          1
 
 

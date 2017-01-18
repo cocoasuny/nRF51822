@@ -47,9 +47,7 @@ int main(void)
 	
 	/* bsp init */
 	bsp_init();
-	
-	system_info_test_timer_init(); 
-    
+	    
 	/* Init a semaphore for the BLE thread. */
     g_semaphore_ble_event_ready = xSemaphoreCreateBinary();
     if (NULL == g_semaphore_ble_event_ready)
@@ -59,7 +57,7 @@ int main(void)
 	
 	/* creat a thread for ble top level implementation*/
 	if(
-		pdPASS != xTaskCreate(ble_top_implementation_thread,"ble",BLE_TOP_IMPLEMENTATION_STACK,NULL,
+		pdPASS != xTaskCreate(ble_top_implementation_thread,"ble top",BLE_TOP_IMPLEMENTATION_STACK,NULL,
 							  	BLE_TOP_IMPLEMENTATION_PRIORITY,&m_ble_top_implementation_thread)
 	)
 	{
@@ -68,7 +66,7 @@ int main(void)
     
 	/* creat a thread for ble event handler thread*/
 	if(
-		pdPASS != xTaskCreate(ble_event_handler_thread,"ble",BLE_EVENT_HANDLER_STACK,NULL,
+		pdPASS != xTaskCreate(ble_event_handler_thread,"ble evt",BLE_EVENT_HANDLER_STACK,NULL,
 							  	BLE_EVENT_HANDLER_PRIORITY,&m_ble_event_handler_thread)
 	)
 	{
