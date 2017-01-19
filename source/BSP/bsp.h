@@ -21,6 +21,16 @@
 #include "bsp_uart.h"
 #include "main.h"
 #include "bsp_led.h"
+#include "app_timer_appsh.h"
+
+
+/* type struct define */
+typedef enum
+{
+    MODE_INTERRUPT = 0,
+    MODE_SCHEDULER
+}TIME_MODE_T;
+
 
 void bsp_init(void);
 

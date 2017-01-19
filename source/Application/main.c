@@ -34,7 +34,7 @@ int main(void)
 {
 	/* clock config */
 	nrf_drv_clock_init();
-	
+    	
     /* app scheduler init */
     scheduler_init();
     
@@ -44,6 +44,10 @@ int main(void)
     /* ble init */
     ble_init();
 
+    /* for test */
+    ble_scan_test();
+    test_running_indicate();
+    
 	while(1)
 	{
         app_sched_execute();

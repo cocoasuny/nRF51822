@@ -20,7 +20,8 @@
 #include "main.h"
 
 void system_info_test_timer_init(void);
-void get_system_run_status(void);
+void ble_scan_test(void);
+void test_running_indicate(void);
 
 #endif // _SYSTEM_INFO_TESY_
 

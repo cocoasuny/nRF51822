@@ -22,7 +22,6 @@ static void timer_system_test(nrf_timer_event_t event_type, void * p_context);
 /* private variabled declare */
 static nrf_drv_timer_t 			m_timer_system_test = NRF_DRV_TIMER_INSTANCE(1);
 
-volatile uint32_t ulHighFrequencyTimerTicks = 0UL;
 
 /**
   * @brief  system_info_test_timer_init
@@ -70,28 +69,54 @@ static void timer_system_test(nrf_timer_event_t event_type, void * p_context)
     {
         case NRF_TIMER_EVENT_COMPARE0:
         {
-            ulHighFrequencyTimerTicks++;
+            
         }
         break;
         default:break;
     }  
 }
-/**
-  * @brief  timer_system_test
-  * @param  event_type,p_context
-  * @retval None
-  */
-void get_system_run_status(void)
+
+/* test for ble scan */
+APP_TIMER_DEF(m_ble_scan_test_timer_id);                  /**<ble scan control timer. */
+
+static void vTimerBleScanTestCB(void * p_context)
 {
-    uint8_t pcWriteBuffer[500];
+    BLE_MSG_T               bleEventMsgValue;
+    uint32_t                err_code = NRF_ERROR_NULL;
     
-    printf("=================================================\r\n");
-    printf("task         status    pri     stack   taskID\r\n");
-    vTaskList((char *)&pcWriteBuffer);
-    printf("%s\r\n", pcWriteBuffer);
-    printf("\r\ntask          run count        usage\r\n");
-    vTaskGetRunTimeStats((char *)&pcWriteBuffer);
-    printf("%s\r\n", pcWriteBuffer);    
+    bleEventMsgValue.eventID = EVENT_APP_BLE_START_SCAN;
+    err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
+    APP_ERROR_CHECK(err_code);      
+}
+void ble_scan_test(void)
+{
+    uint32_t                err_code = NRF_ERROR_NULL;
+    
+    app_timer_create(&m_ble_scan_test_timer_id,APP_TIMER_MODE_REPEATED,vTimerBleScanTestCB);
+    
+    /* start the timer of scan control */
+    err_code = app_timer_start(m_ble_scan_test_timer_id,APP_TIMER_TICKS(5000, APP_TIMER_PRESCALER),NULL);
+    APP_ERROR_CHECK(err_code);         
+}
+
+/* test running status indicate */
+APP_TIMER_DEF(m_run_indicate_timer_id);                  /**<ble scan control timer. */
+
+static void vTimerRunningIndicateCB(void * p_context)
+{
+    bsp_led_toggle(LED1);
+}
+void test_running_indicate(void)
+{
+    uint32_t                err_code = NRF_ERROR_NULL;
+    
+    bsp_led_init(LED1);
+    
+    app_timer_create(&m_run_indicate_timer_id,APP_TIMER_MODE_REPEATED,vTimerRunningIndicateCB);
+    
+    /* start the timer of running indicate */
+    err_code = app_timer_start(m_run_indicate_timer_id,APP_TIMER_TICKS(500, APP_TIMER_PRESCALER),NULL);
+    APP_ERROR_CHECK(err_code);         
 }
 
 

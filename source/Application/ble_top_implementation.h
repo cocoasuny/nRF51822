@@ -42,8 +42,8 @@
 
 
 void ble_init(void);
-void ble_event_handler_thread(void * arg);
-
+void ble_task_handler(void *p_event_data,uint16_t event_size);
+void ble_scan_control_timer_init(void);
 
 
 

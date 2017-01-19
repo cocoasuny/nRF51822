@@ -9,8 +9,7 @@
  * the file.
  *
  */
-#include "sdk_config.h"
-#if APP_TIMER_ENABLED
+
 #include "app_timer.h"
 #include <stdlib.h>
 #include "nrf.h"
@@ -1048,4 +1047,3 @@ uint8_t app_timer_op_queue_utilization_get(void)
     return m_max_user_op_queue_utilization;
 }
 #endif
-#endif //APP_TIMER_ENABLED

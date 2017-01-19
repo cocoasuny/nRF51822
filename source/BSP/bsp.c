@@ -16,6 +16,9 @@
 #include "bsp.h"
 
 /* Private variables ---------------------------------------------------------*/
+static void timers_init(TIME_MODE_T mode);
+
+
 const char Dev_Msg[] =
 	"/*********************  This is to be Done ********************/\r\n"
     "/*                                                            */\r\n"
@@ -36,6 +39,9 @@ void bsp_init(void)
 	/* uart init */
 	uart_init();
     
+    /* app timers init */
+    timers_init(MODE_INTERRUPT);
+    
     /* shell_init */
     shell_init();
 	
@@ -47,7 +53,27 @@ void bsp_init(void)
     
     printf("%s",Dev_Msg);
 }
-
+/**
+  * @brief  Function for initializing the timer module.
+  * @param  None
+  * @retval None
+  */
+static void timers_init(TIME_MODE_T mode)
+{
+    if(mode == MODE_INTERRUPT)
+    {
+        /* app timer init, calling it directly when timeout(interrupt mode) */
+        APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_OP_QUEUE_SIZE, NULL);
+    }
+    else if(mode == MODE_SCHEDULER)
+    {
+        // Initialize timer module, making it use the scheduler.
+        APP_TIMER_APPSH_INIT(APP_TIMER_PRESCALER, APP_TIMER_OP_QUEUE_SIZE, true);        
+    }
+    
+    /* 分配timer控制扫描时间 */
+    ble_scan_control_timer_init();
+}
 
 
 /************************ (C) COPYRIGHT Chengdu CloudCare Healthcare Co., Ltd. *****END OF FILE****/

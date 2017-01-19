@@ -57,7 +57,8 @@ void Shell_BLE_Service(void)
 {
     uint8_t                 *ptRxd;         //用于接收指令处理  
     uint8_t                 i;
-    
+    BLE_MSG_T               bleEventMsgValue;
+    uint32_t                err_code = NRF_ERROR_NULL;
 
     //指令初级过滤  
     //--------------------------------------------------------------------------  
@@ -76,19 +77,15 @@ void Shell_BLE_Service(void)
     ptRxd += 4;
     if(StrComp(ptRxd,"start scan"))    //按包读取指令
     {
-//        bleEventMsgValue.eventID = EVENT_APP_BLE_START_SCAN;
-//        if(xQueueSend(g_bleEventQueue,(void *)&bleEventMsgValue,xTicksToWait) != pdPASS)
-//        {
-//            APP_ERROR_CHECK(pdFAIL);
-//        }         
+        bleEventMsgValue.eventID = EVENT_APP_BLE_START_SCAN;
+        err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
+        APP_ERROR_CHECK(err_code);         
     }
     else if(StrComp(ptRxd,"stop scan")) //停止蓝牙扫描
     {
-//        bleEventMsgValue.eventID = EVENT_APP_BLE_STOP_SCAN;
-//        if(xQueueSend(g_bleEventQueue,(void *)&bleEventMsgValue,xTicksToWait) != pdPASS)
-//        {
-//            APP_ERROR_CHECK(pdFAIL);
-//        }         
+        bleEventMsgValue.eventID = EVENT_APP_BLE_STOP_SCAN;
+        err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
+        APP_ERROR_CHECK(err_code);          
     }
     else if(StrComp(ptRxd,"help\r\n"))      //
     {

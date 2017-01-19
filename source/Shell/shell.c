@@ -337,7 +337,7 @@ void Shell_ProcessorHandler(void)
   * @param  pvParameters
   * @retval None
   */
-void shellCtlTaskHandler(void)
+void shellCtlTaskHandler(void *p_event_data,uint16_t event_size)
 {
     #ifdef SHELL_ENABLE			
         Shell_ProcessorHandler();     //Shell处理函数

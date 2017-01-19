@@ -23,9 +23,8 @@
 
 /* Central related define  */
 
-#define APP_TIMER_PRESCALER         0                                             /**< Value of the RTC1 PRESCALER register. */
-#define APP_TIMER_OP_QUEUE_SIZE     2                                             /**< Size of timer operation queues. */
-
+#define APP_TIMER_PRESCALER         (0)                                           /**< Value of the RTC1 PRESCALER register. */
+#define APP_TIMER_OP_QUEUE_SIZE     (10)                                           /**< Size of timer operation queues. */
 
 #define SCAN_INTERVAL               0x0140                                        /**< Determines scan interval in units of 0.625 millisecond. */
 #define SCAN_WINDOW                 0x0100                                        /**< Determines scan window in units of 0.625 millisecond. */

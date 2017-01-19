@@ -391,11 +391,6 @@
               <FilePath>..\source\Application\main.c</FilePath>
             </File>
             <File>
-              <FileName>FreeRTOSConfig.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\source\Application\FreeRTOSConfig.h</FilePath>
-            </File>
-            <File>
               <FileName>platform.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\source\Application\platform.h</FilePath>
@@ -414,6 +409,11 @@
               <FileName>ble_top_implementation.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\Application\ble_top_implementation.c</FilePath>
+            </File>
+            <File>
+              <FileName>system_info_test.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\Application\system_info_test.c</FilePath>
             </File>
           </Files>
         </Group>

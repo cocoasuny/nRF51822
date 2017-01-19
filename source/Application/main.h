@@ -34,6 +34,7 @@
 #include "app_error.h"
 #include "softdevice_handler_appsh.h"
 #include "app_scheduler.h"
+#include "system_info_test.h"
 
 /**@brief Variable length data encapsulation in terms of length and pointer to data. */
 typedef struct
