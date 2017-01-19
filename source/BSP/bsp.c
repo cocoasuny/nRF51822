@@ -35,6 +35,9 @@ void bsp_init(void)
 {
 	/* uart init */
 	uart_init();
+    
+    /* shell_init */
+    shell_init();
 	
 	/* for test */
 	g_DeviceInformation.SeriNum[0] = 0x12;

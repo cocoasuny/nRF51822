@@ -36,7 +36,6 @@ static BLE_SCAN_LIST_T    m_targetConnectDevInfo;       //需要连接设备信�
 
 /* private function declare */
 static void ble_stack_init(void);
-static uint32_t ble_new_event_handler(void);
 static void sys_evt_dispatch(uint32_t sys_evt);
 static void ble_evt_dispatch(ble_evt_t * p_ble_evt);
 static void db_discovery_init(void);
@@ -49,41 +48,24 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt);
 static ret_code_t start_ble_scan(void);
 static ret_code_t stop_ble_scan(void);
 static void services_init(void);
-static void vTimerStopBleScanCB(xTimerHandle pxTimer);
+//static void vTimerStopBleScanCB(xTimerHandle pxTimer);
 static void reset_scan_list(void);
 static void reset_target_Connnect_DevInfo(void);
 
 /**
-  * @brief  ble_top_implementation_thread 
-  * @note   the top level implementation of ble task 
-  * @param  void * arg
+  * @brief  ble_init
+  * @param  None
   * @retval None
   */
-void ble_top_implementation_thread(void * arg)
-{
-	UNUSED_PARAMETER(arg);
-	
+void ble_init(void)
+{	
 	/* ble stack init */
 	ble_stack_init();	
 	db_discovery_init();
 	gap_params_init();
 	conn_params_init();
 	services_init();
-	advertising_init();
-	
-    while (1)
-    {
-        /* Wait for event from SoftDevice */
-        while (pdFALSE == xSemaphoreTake(g_semaphore_ble_event_ready, portMAX_DELAY))
-        {
-            // Just wait again in the case when INCLUDE_vTaskSuspend is not enabled
-        }
-
-        // This function gets events from the SoftDevice and processes them by calling the function
-        // registered by softdevice_ble_evt_handler_set during stack initialization.
-        // In this code ble_evt_dispatch would be called for every event found.
-        intern_softdevice_events_execute();
-    }	
+	advertising_init();	
 }
 /**
   * @brief  ble_event_handler_thread 
@@ -93,99 +75,99 @@ void ble_top_implementation_thread(void * arg)
   */
 void ble_event_handler_thread(void * arg)
 {
-    BLE_MSG_T               bleEventMsgValue;
-    const TickType_t 		xMaxBlockTime = pdMS_TO_TICKS(300); /* 设置最大等待时间为 300ms */
-    TimerHandle_t           scanCTL_Timer = NULL;
-    uint8_t                 i=0;
-    
-    UNUSED_PARAMETER(arg);
-    
-    /* creat event queue for ble event */
-    g_bleEventQueue = xQueueCreate(BLE_EVENT_QUEUE_SIZE,sizeof(BLE_MSG_T));
-    #ifdef DEBUG_BLE_EVENT
-        if(g_bleEventQueue == NULL)
-        {
-            printf("ble event queue creat fail\r\n");
-        }
-    #endif
-        
-    /* ble event queue init */
-    bleEventMsgValue.eventID = EVENT_APP_BLE_DEFAULT;
-        
-    /* 分配timer控制扫描时间 */
-    scanCTL_Timer = xTimerCreate("scanTime",STOP_SCAN_TIME,pdFALSE,(void *)0,vTimerStopBleScanCB);
-    if(scanCTL_Timer == NULL)
-    {
-        APP_ERROR_CHECK(pdFALSE);
-    }        
-    
-    while(1)
-    {
-        // [code block]: queue message handler
-        {
-            if(pdPASS == xQueueReceive(g_bleEventQueue,(void *)&bleEventMsgValue,xMaxBlockTime))
-            {
-                /* 接收到消息，对消息事件进行处理 */
-                switch(bleEventMsgValue.eventID)
-                {
-                    case EVENT_APP_BLE_START_SCAN:
-                    {
-                        #ifdef DEBUG_BLE_SCAN
-                            printf("start scan\r\n");
-                        #endif
-                        /* start ble scan */
-                        start_ble_scan();
-                        
-                        /* 清空扫描列表 */
-                        reset_scan_list();
-                        
-                        /* stop the timer of scan control */
-                        if(xTimerStop(scanCTL_Timer,xMaxBlockTime) != pdPASS)
-						{
-							APP_ERROR_CHECK(pdFALSE);
-						}                        
-                        /* start the timer of scan control */
-                        if(xTimerStart(scanCTL_Timer,xMaxBlockTime) != pdPASS)
-						{
-							APP_ERROR_CHECK(pdFALSE);
-						}   
-                    }
-                    break;
-                    case EVENT_APP_BLE_STOP_SCAN:
-                    {
-                        #ifdef DEBUG_BLE_SCAN
-                            printf("stop scan\r\n");
-                        #endif 
-                        
-                        /* stop ble scan */
-                        stop_ble_scan();
-                        
-                        /* reset the target connnect device info */
-                        reset_target_Connnect_DevInfo();
-                        
-                        /* 找出扫描列表中最大信号质量强度对应的手环 */
-                        for(i=0;i<MAX_SCAN_LIST_NUM;i++)
-                        {
-                            if(gScanList[i].isValid == false)  //说明在扫描事件中已将填充对应的扫描列表位置
-                            {
-                                if(m_targetConnectDevInfo.rssi < gScanList[i].rssi)
-                                {
-                                    memcpy(&m_targetConnectDevInfo,&gScanList[i],sizeof(BLE_SCAN_LIST_T));
-                                }
-                            }                                
-                        }
-                        uint32_t SN = 0;
-                        SN = (uint32_t)((m_targetConnectDevInfo.sn[0]<<24)+(m_targetConnectDevInfo.sn[1]<<16)
-                                        +(m_targetConnectDevInfo.sn[2]<<8)+m_targetConnectDevInfo.sn[3]<<0);
-                        printf("target SN:%d\r\n",SN);
-                    }
-                    break;
-                    default:break;
-                }
-            }
-        }
-        //[code block]: queue message handler
-    }
+//    BLE_MSG_T               bleEventMsgValue;
+//    const TickType_t 		xMaxBlockTime = pdMS_TO_TICKS(300); /* 设置最大等待时间为 300ms */
+//    TimerHandle_t           scanCTL_Timer = NULL;
+//    uint8_t                 i=0;
+//    
+//    UNUSED_PARAMETER(arg);
+//    
+//    /* creat event queue for ble event */
+//    g_bleEventQueue = xQueueCreate(BLE_EVENT_QUEUE_SIZE,sizeof(BLE_MSG_T));
+//    #ifdef DEBUG_BLE_EVENT
+//        if(g_bleEventQueue == NULL)
+//        {
+//            printf("ble event queue creat fail\r\n");
+//        }
+//    #endif
+//        
+//    /* ble event queue init */
+//    bleEventMsgValue.eventID = EVENT_APP_BLE_DEFAULT;
+//        
+//    /* 分配timer控制扫描时间 */
+//    scanCTL_Timer = xTimerCreate("scanTime",STOP_SCAN_TIME,pdFALSE,(void *)0,vTimerStopBleScanCB);
+//    if(scanCTL_Timer == NULL)
+//    {
+//        APP_ERROR_CHECK(pdFALSE);
+//    }        
+//    
+//    while(1)
+//    {
+//        // [code block]: queue message handler
+//        {
+//            if(pdPASS == xQueueReceive(g_bleEventQueue,(void *)&bleEventMsgValue,xMaxBlockTime))
+//            {
+//                /* 接收到消息，对消息事件进行处理 */
+//                switch(bleEventMsgValue.eventID)
+//                {
+//                    case EVENT_APP_BLE_START_SCAN:
+//                    {
+//                        #ifdef DEBUG_BLE_SCAN
+//                            printf("start scan\r\n");
+//                        #endif
+//                        /* start ble scan */
+//                        start_ble_scan();
+//                        
+//                        /* 清空扫描列表 */
+//                        reset_scan_list();
+//                        
+//                        /* stop the timer of scan control */
+//                        if(xTimerStop(scanCTL_Timer,xMaxBlockTime) != pdPASS)
+//						{
+//							APP_ERROR_CHECK(pdFALSE);
+//						}                        
+//                        /* start the timer of scan control */
+//                        if(xTimerStart(scanCTL_Timer,xMaxBlockTime) != pdPASS)
+//						{
+//							APP_ERROR_CHECK(pdFALSE);
+//						}   
+//                    }
+//                    break;
+//                    case EVENT_APP_BLE_STOP_SCAN:
+//                    {
+//                        #ifdef DEBUG_BLE_SCAN
+//                            printf("stop scan\r\n");
+//                        #endif 
+//                        
+//                        /* stop ble scan */
+//                        stop_ble_scan();
+//                        
+//                        /* reset the target connnect device info */
+//                        reset_target_Connnect_DevInfo();
+//                        
+//                        /* 找出扫描列表中最大信号质量强度对应的手环 */
+//                        for(i=0;i<MAX_SCAN_LIST_NUM;i++)
+//                        {
+//                            if(gScanList[i].isValid == false)  //说明在扫描事件中已将填充对应的扫描列表位置
+//                            {
+//                                if(m_targetConnectDevInfo.rssi < gScanList[i].rssi)
+//                                {
+//                                    memcpy(&m_targetConnectDevInfo,&gScanList[i],sizeof(BLE_SCAN_LIST_T));
+//                                }
+//                            }                                
+//                        }
+//                        uint32_t SN = 0;
+//                        SN = (uint32_t)((m_targetConnectDevInfo.sn[0]<<24)+(m_targetConnectDevInfo.sn[1]<<16)
+//                                        +(m_targetConnectDevInfo.sn[2]<<8)+m_targetConnectDevInfo.sn[3]<<0);
+//                        printf("target SN:%d\r\n",SN);
+//                    }
+//                    break;
+//                    default:break;
+//                }
+//            }
+//        }
+//        //[code block]: queue message handler
+//    }
 }
 
 /**@brief Function for start ble scanning.
@@ -234,8 +216,8 @@ static void ble_stack_init(void)
 
     nrf_clock_lf_cfg_t clock_lf_cfg = NRF_CLOCK_LFCLKSRC;
 
-    // Initialize the SoftDevice handler module.
-    SOFTDEVICE_HANDLER_INIT(&clock_lf_cfg, ble_new_event_handler);
+    // Initialize the SoftDevice handler module,Use system event for scheduler 
+    SOFTDEVICE_HANDLER_APPSH_INIT(&clock_lf_cfg, true);
 
     ble_enable_params_t ble_enable_params;
     err_code = softdevice_enable_get_default_config(CENTRAL_LINK_COUNT,
@@ -339,29 +321,6 @@ static void sys_evt_dispatch(uint32_t sys_evt)
 //    // pending flash operations in fstorage. Let fstorage process system events first,
 //    // so that it can report correctly to the Advertising module.
 //    ble_advertising_on_sys_evt(sys_evt);
-}
-
-/**
-  * @brief  Event handler for new BLE events
-  * @note   This function is called from the SoftDevice handler. 
-  *         It is called from interrupt level.
-  * @param  None
-  * @retval The returned value is checked in the softdevice_handler module,
-  *         using the APP_ERROR_CHECK macro.
-  */
-static uint32_t ble_new_event_handler(void)
-{
-    BaseType_t yield_req = pdFALSE;
-
-    // The returned value may be safely ignored, if error is returned it only means that
-    // the semaphore is already given (raised).
-    xSemaphoreGiveFromISR(g_semaphore_ble_event_ready, &yield_req);
-    
-    if(yield_req == pdTRUE)
-    {
-        portYIELD_FROM_ISR(yield_req);
-    }
-    return NRF_SUCCESS;
 }
 
 /**
@@ -536,17 +495,17 @@ static void services_init(void)
   * @param  pxTimer
   * @retval None
   */
-static void vTimerStopBleScanCB(xTimerHandle pxTimer)
-{
-    BLE_MSG_T               bleEventMsgValue;
-    const TickType_t        xTicksToWait = 100 / portTICK_PERIOD_MS; /* 最大等待时间100ms */
-    
-    bleEventMsgValue.eventID = EVENT_APP_BLE_STOP_SCAN;
-    if(xQueueSend(g_bleEventQueue,(void *)&bleEventMsgValue,xTicksToWait) != pdPASS)
-    {
-        APP_ERROR_CHECK(pdFAIL);
-    }
-}
+//static void vTimerStopBleScanCB(xTimerHandle pxTimer)
+//{
+//    BLE_MSG_T               bleEventMsgValue;
+//    const TickType_t        xTicksToWait = 100 / portTICK_PERIOD_MS; /* 最大等待时间100ms */
+//    
+//    bleEventMsgValue.eventID = EVENT_APP_BLE_STOP_SCAN;
+//    if(xQueueSend(g_bleEventQueue,(void *)&bleEventMsgValue,xTicksToWait) != pdPASS)
+//    {
+//        APP_ERROR_CHECK(pdFAIL);
+//    }
+//}
 /**
   * @brief  reset_scan_list
   * @param  None

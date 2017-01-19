@@ -25,6 +25,8 @@
 #include "ble_advdata.h"
 #include "ble_advertising.h"
 #include "fstorage.h"
+#include "nrf_sdm.h"
+#include "softdevice_handler_appsh.h"
 
 
 /* defines for ble pareameters */
@@ -39,7 +41,7 @@
                            
 
 
-void ble_top_implementation_thread(void * arg);
+void ble_init(void);
 void ble_event_handler_thread(void * arg);
 
 

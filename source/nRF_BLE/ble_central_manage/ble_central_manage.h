@@ -18,6 +18,7 @@
 #define __BLE_CENTRAL_MANAGE_H__
 
 #include "main.h"
+#include "ble.h"
 
 
 /* Central related define  */

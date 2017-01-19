@@ -127,9 +127,8 @@ void HAL_UART_RxCpltCallback(uint8_t cr)
   
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_UART_TxCpltCallback could be implemented in the user file
-   */
-//    uint8_t i=0;
-
+   */   
+    
     //接收中断
     if(shell_rx_rdy)
     {
@@ -157,7 +156,8 @@ void HAL_UART_RxCpltCallback(uint8_t cr)
         if( (shell_rx_index >=2) && ('\r' == shell_rx_buff[shell_rx_index-2]) &&
             ('\n' == shell_rx_buff[shell_rx_index-1])   )       //以"\r\n"结尾  
         {
-//              // for test 
+              // for test
+//            uint8_t i=0;
 //            printf("\r\n");
 //            for(i=0;i<shell_rx_index-2;i++)
 //            {
@@ -167,7 +167,9 @@ void HAL_UART_RxCpltCallback(uint8_t cr)
             
             shell_rx_rdy = shell_rx_index;
             shell_rx_index = 0;
-                        
+            
+            /* send the shell handle event */
+            app_sched_event_put(NULL, 0, shellCtlTaskHandler);                        
         }
         else if( (shell_rx_index > 0) && ('\b' == shell_rx_buff[shell_rx_index-1]) ) //以\b结尾  
         {
@@ -335,47 +337,23 @@ void Shell_ProcessorHandler(void)
   * @param  pvParameters
   * @retval None
   */
-void shellCtlTask(void *pvParameters)
+void shellCtlTaskHandler(void)
 {
-    uint8_t cnt=0;
-    BLE_MSG_T               bleEventMsgValue;
-    const TickType_t        xTicksToWait = 100 / portTICK_PERIOD_MS; /* 最大等待时间100ms */  
-    
-    /* Led Init */
-    bsp_led_init(LED1);
-    bsp_led_init(LED2);
-
-#ifdef DEBUG_CPU_USAGE    
-    system_info_test_timer_init();
-#endif    
-    
-    while(1)
-    {
     #ifdef SHELL_ENABLE			
         Shell_ProcessorHandler();     //Shell处理函数
     #endif	
-        bsp_led_toggle(LED1);
-    #ifdef DEBUG_CPU_USAGE
-        get_system_run_status();
-    #endif
-        
-        cnt++;
-        if(cnt >= 10)
-        {
-            cnt=0;
-            bleEventMsgValue.eventID = EVENT_APP_BLE_START_SCAN;
-            if(xQueueSend(g_bleEventQueue,(void *)&bleEventMsgValue,xTicksToWait) != pdPASS)
-            {
-                APP_ERROR_CHECK(pdFAIL);
-            }              
-        }
-            
-        vTaskDelay(500); 
-    }
 }
 
-
-
+/**
+  * @brief  shell_init 
+  * @note   需要先使能串口收发功能 
+  * @param  None
+  * @retval None
+  */
+void shell_init(void)
+{
+    app_sched_event_put(NULL, 0, shellCtlTaskHandler);
+}
 
 
 #endif

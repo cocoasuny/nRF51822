@@ -23,10 +23,6 @@
 #include "platform.h"
 #include "bsp.h"
 #include "nrf_drv_clock.h"
-#include "FreeRTOS.h"
-#include "task.h"
-#include "timers.h"
-#include "semphr.h"
 #include "ble_top_implementation.h"
 #include "ble_central_manage.h"
 #include "ble_hci.h"
@@ -36,7 +32,8 @@
 #include "app_uart.h"
 #include "nordic_common.h"
 #include "app_error.h"
-#include "system_info_test.h"
+#include "softdevice_handler_appsh.h"
+#include "app_scheduler.h"
 
 /**@brief Variable length data encapsulation in terms of length and pointer to data. */
 typedef struct
@@ -85,9 +82,7 @@ typedef struct
 
 
 /* gloable variables declare */
-extern SemaphoreHandle_t            g_semaphore_ble_event_ready;
 extern DeviceInfomation_t  			g_DeviceInformation;                //硬件设备信息
-extern QueueHandle_t                g_bleEventQueue;                    //event queue for ble
 extern BLE_SCAN_LIST_T              gScanList[];  
 
 #endif // __MAIN__
