@@ -24,11 +24,11 @@
 /* Central related define  */
 
 #define APP_TIMER_PRESCALER         (0)                                           /**< Value of the RTC1 PRESCALER register. */
-#define APP_TIMER_OP_QUEUE_SIZE     (10)                                           /**< Size of timer operation queues. */
+#define APP_TIMER_OP_QUEUE_SIZE     (10)                                          /**< Size of timer operation queues. */
 
-#define SCAN_INTERVAL               0x0140                                        /**< Determines scan interval in units of 0.625 millisecond. */
-#define SCAN_WINDOW                 0x0100                                        /**< Determines scan window in units of 0.625 millisecond. */
-#define SCAN_TIMEOUT                (uint16_t) MSEC_TO_UNITS(1000, UNIT_1_25_MS)
+#define SCAN_INTERVAL               (uint16_t) MSEC_TO_UNITS(100, UNIT_0_625_MS)  /**< Determines scan interval in units of 0.625 millisecond. */
+#define SCAN_WINDOW                 (uint16_t) MSEC_TO_UNITS(80, UNIT_0_625_MS)  /**< Determines scan window in units of 0.625 millisecond. */
+#define SCAN_TIMEOUT                (0)                                           /**< disables timeout. */
 
 #define MIN_CONNECTION_INTERVAL     (uint16_t) MSEC_TO_UNITS(100, UNIT_1_25_MS)   /**< Determines minimum connection interval in milliseconds. */
 #define MAX_CONNECTION_INTERVAL     (uint16_t) MSEC_TO_UNITS(200, UNIT_1_25_MS)    /**< Determines maximum connection interval in milliseconds. */
@@ -42,6 +42,8 @@
 
 ret_code_t scan_start(void);
 ret_code_t scan_stop(void);
+ret_code_t ble_central_connect(ble_gap_addr_t *peerAddr);
+ret_code_t ble_central_disconnect(uint16_t conn_handle);
 void on_ble_central_evt(const ble_evt_t * const p_ble_evt);
 
 

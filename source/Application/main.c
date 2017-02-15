@@ -18,6 +18,8 @@
 /* gloable variables define */
 DeviceInfomation_t  		g_DeviceInformation;                            //硬件设备信息
 BLE_SCAN_LIST_T             gScanList[MAX_SCAN_LIST_NUM];                   //扫描列表
+ble_db_discovery_t          g_ble_db_discovery[CENTRAL_LINK_COUNT + PERIPHERAL_LINK_COUNT]; /**< list of DB structures used by the database discovery module. */
+
 
 /* private variables define */
 
@@ -45,7 +47,7 @@ int main(void)
     ble_init();
 
     /* for test */
-    ble_scan_test();
+//    ble_scan_test();
     test_running_indicate();
     
 	while(1)

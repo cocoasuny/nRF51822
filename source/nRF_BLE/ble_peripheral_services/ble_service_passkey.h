@@ -22,7 +22,7 @@
 /* passkey service and characters uuid define */
 #define  PASSKEY_UUID_BASE                  	{0x22,0x1A,0xAC,0xD7,0x5B,0xCA,0xA0,0x5A,0x23,0xD6,0xFA,0xAD,0x39,0x89,0x88,0xC3}
 #define  BLE_UUID_PASSKEY_AUTH_SERVICE   		0x8939
-#define  BLE_UUID_PASSKEY_FEATURE_CHAR   		0x8940
+#define  BLE_UUID_PASSKEY_WRITE_CHAR   		0x8940
 #define  BLE_UUID_PASSKEY_AUTH_RESULT_CHAR      0x8941
 
 // Forward declaration of the ble_passkey_t type. 

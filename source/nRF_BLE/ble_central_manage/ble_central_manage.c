@@ -15,12 +15,10 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "ble_central_manage.h"
+#include "ble_central_service_bonding.h"
 
 
 /* private variables declare -------------------------------------------------*/
-static ble_db_discovery_t m_ble_db_discovery[CENTRAL_LINK_COUNT + PERIPHERAL_LINK_COUNT]; /**< list of DB structures used by the database discovery module. */
-
-
 
 /* private function decalre --------------------------------------------------*/
 static void scan_advertise_data_report(const ble_gap_evt_adv_report_t *adv_report);
@@ -42,6 +40,16 @@ static const ble_gap_scan_params_t m_scan_params =
     #if (NRF_SD_BLE_API_VERSION == 3)
         .use_whitelist = 0,
     #endif
+};
+/**
+ * @brief Parameters used for connnecting.
+ */
+static const ble_gap_conn_params_t m_connection_param =
+{
+    (uint16_t) MIN_CONNECTION_INTERVAL, 
+    (uint16_t) MAX_CONNECTION_INTERVAL, 
+    0,
+    (uint16_t) SUPERVISION_TIMEOUT 
 };
 
 
@@ -80,6 +88,32 @@ ret_code_t scan_stop(void)
     
     return err_code;
 }
+/**
+  * @brief  Function for central device connect the periphral device 
+  * @param  *peerAddr, mac address
+  * @retval ret_code_t
+  */
+ret_code_t ble_central_connect(ble_gap_addr_t *peerAddr)
+{
+    ret_code_t      err_code = NRF_SUCCESS;
+    
+    err_code = sd_ble_gap_connect(peerAddr, &m_scan_params, &m_connection_param);
+    
+    return err_code;
+}
+/**
+  * @brief  Function for central device disconnect the periphral device 
+  * @param  conn_handle
+  * @retval ret_code_t
+  */
+ret_code_t ble_central_disconnect(uint16_t conn_handle)
+{
+    ret_code_t      err_code = NRF_SUCCESS;
+    
+    err_code = sd_ble_gap_disconnect(conn_handle,BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+    
+    return err_code;
+}
 
 /**
   * @brief  Function for handling BLE Stack events concerning central applications.
@@ -110,9 +144,13 @@ void on_ble_central_evt(const ble_evt_t * const p_ble_evt)
 			#ifdef DEBUG_BLE_CONNECT
                 printf("CENTRAL: start to find service on conn_handle 0x%x\r\n", p_gap_evt->conn_handle);
 			#endif
+            
+            g_DeviceInformation.conn_handle = p_gap_evt->conn_handle;
+            /* Reset the bonding service pwd write and result char */
+            reset_ble_central_bonding_service(&g_DeviceInformation.bonding_service);
 
 			APP_ERROR_CHECK_BOOL(p_gap_evt->conn_handle < CENTRAL_LINK_COUNT + PERIPHERAL_LINK_COUNT);
-			err_code = ble_db_discovery_start(&m_ble_db_discovery[p_gap_evt->conn_handle], p_gap_evt->conn_handle);
+			err_code = ble_db_discovery_start(&g_ble_db_discovery[p_gap_evt->conn_handle], p_gap_evt->conn_handle);
 			APP_ERROR_CHECK(err_code);
             
             /** check if we should be looking for more peripherals to connect to. */
@@ -132,6 +170,10 @@ void on_ble_central_evt(const ble_evt_t * const p_ble_evt)
 			#ifdef DEBUG_BLE_CONNECT
 				printf("CENTRAL: disconnected (reason: %d)\r\n",p_gap_evt->params.disconnected.reason);
 			#endif
+            
+            g_DeviceInformation.conn_handle = BLE_CONN_HANDLE_INVALID;
+            /* Reset the bonding service pwd write and result char */
+            reset_ble_central_bonding_service(&g_DeviceInformation.bonding_service);
             
         } break; // BLE_GAP_EVT_DISCONNECTED
 

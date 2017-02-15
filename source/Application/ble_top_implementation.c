@@ -14,6 +14,8 @@
   */
   
 #include "ble_top_implementation.h"
+#include "ble_central_service_bonding.h"
+
 
 
 
@@ -31,8 +33,8 @@
 
 
 /* private variables define */
-static BLE_SCAN_LIST_T    m_targetConnectDevInfo;       //需要连接设备信息
 APP_TIMER_DEF(m_ble_scanCTL_timer_id);                  /**<ble scan control timer. */
+
 
 /* private function declare */
 static void ble_stack_init(void);
@@ -48,9 +50,12 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt);
 static ret_code_t start_ble_scan(void);
 static ret_code_t stop_ble_scan(void);
 static void services_init(void);
+static uint32_t ble_central_service_init(void);
 static void vTimerStopBleScanCB(void * p_context);
 static void reset_scan_list(void);
 static void reset_target_Connnect_DevInfo(void);
+static ret_code_t ble_central_connect_target(ble_gap_addr_t *peerAddr);
+static ret_code_t ble_central_disconnect_target(uint16_t conn_handle);
 
 /**
   * @brief  ble_init
@@ -65,6 +70,7 @@ void ble_init(void)
 	gap_params_init();
 	conn_params_init();
 	services_init();
+    ble_central_service_init();
 	advertising_init();	
 }
 /**
@@ -74,12 +80,15 @@ void ble_init(void)
   */
 void ble_task_handler(void *p_event_data,uint16_t event_size)
 {
-    BLE_MSG_T               *bleEventMsgValue = (BLE_MSG_T *)p_event_data;
+    BLE_MSG_T               *bleRxEventMsgValue = (BLE_MSG_T *)p_event_data;
+    BLE_MSG_T               bleEventMsgValue; 
     uint32_t                err_code = NRF_ERROR_NULL;
     uint8_t                 i = 0;
+   
+
      
     /* 接收到消息，对消息事件进行处理 */
-    switch(bleEventMsgValue->eventID)
+    switch(bleRxEventMsgValue->eventID)
     {
         case EVENT_APP_BLE_START_SCAN:
         {
@@ -118,16 +127,67 @@ void ble_task_handler(void *p_event_data,uint16_t event_size)
             {
                 if(gScanList[i].isValid == false)  //说明在扫描事件中已将填充对应的扫描列表位置
                 {
-                    if(m_targetConnectDevInfo.rssi < gScanList[i].rssi)
-                    {
-                        memcpy(&m_targetConnectDevInfo,&gScanList[i],sizeof(BLE_SCAN_LIST_T));
+                    if(g_DeviceInformation.rssi < gScanList[i].rssi)
+                    {                      
+                        g_DeviceInformation.rssi = gScanList[i].rssi;
+                        uint8_t j=0;
+                        for(j=0;j<SN_NUM_LEN;j++)
+                        {
+                            g_DeviceInformation.sn[j] = gScanList[i].sn[j];
+                        }
+                        memcpy(&g_DeviceInformation.MACaddr,&gScanList[i].MACaddr,sizeof(ble_gap_addr_t));
+                        g_DeviceInformation.isValid = true;
                     }
                 }                                
             }
-            uint32_t SN = 0;
-            SN = (uint32_t)((m_targetConnectDevInfo.sn[0]<<24)+(m_targetConnectDevInfo.sn[1]<<16)
-                            +(m_targetConnectDevInfo.sn[2]<<8)+m_targetConnectDevInfo.sn[3]<<0);
-            printf("target SN:%d\r\n",SN);
+            
+            if(g_DeviceInformation.isValid == true)  //说明找到了可以连接的设备
+            {
+                #ifdef DEBUG_BLE_BONDING
+                    uint32_t SN = 0;
+                    SN = (uint32_t)((g_DeviceInformation.sn[0]<<24)+(g_DeviceInformation.sn[1]<<16)
+                                    +(g_DeviceInformation.sn[2]<<8)+g_DeviceInformation.sn[3]<<0);
+                    printf("target SN:%d,Mac:0x%x,0x%x,0x%x,0x%x,0x%x,0x%x,type:%d\r\n",SN,
+                                            g_DeviceInformation.MACaddr.addr[0],
+                                            g_DeviceInformation.MACaddr.addr[1],
+                                            g_DeviceInformation.MACaddr.addr[2],
+                                            g_DeviceInformation.MACaddr.addr[3],
+                                            g_DeviceInformation.MACaddr.addr[4],
+                                            g_DeviceInformation.MACaddr.addr[5],
+                                            g_DeviceInformation.MACaddr.addr_type
+                            );
+                #endif
+                /* 发送连接蓝牙连接事件 */
+                bleEventMsgValue.eventID = EVENT_APP_BLE_CONNECT;
+                err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
+                APP_ERROR_CHECK(err_code); 
+            }
+            else  //未找到可以连接的设备
+            {
+                //@todo
+                #ifdef DEBUG_BLE_BONDING
+                    printf("not find the device to connnect\r\n");
+                #endif
+            }
+        }
+        break;
+        case EVENT_APP_BLE_CONNECT:
+        {
+            /* 连接设备 */
+            err_code = ble_central_connect_target(&g_DeviceInformation.MACaddr);
+            APP_ERROR_CHECK(err_code); 
+        }
+        break;
+        case EVENT_APP_BLE_DISCONNECT:
+        {
+            /* 断开设备连接 */
+            err_code = ble_central_disconnect_target(g_DeviceInformation.conn_handle);
+            APP_ERROR_CHECK(err_code);
+        }
+        break;
+        case EVENT_APP_BLE_PASSKEY_WRITE:
+        {
+            ble_central_passkey_write(&g_DeviceInformation);
         }
         break;
         default:break;
@@ -177,7 +237,32 @@ static ret_code_t stop_ble_scan(void)
     
     return err_code;
 }
+/**
+  * @brief  Function for central device to connect target device
+  * @param  *peerAddr,the mac address of target device
+  * @retval ret_code_t
+  */
+static ret_code_t ble_central_connect_target(ble_gap_addr_t *peerAddr)
+{
+    ret_code_t      err_code = NRF_SUCCESS;  
 
+    err_code = ble_central_connect(peerAddr);
+    
+    return err_code;    
+}
+/**
+  * @brief  Function for central device to disconnect target device
+  * @param  conn_handle
+  * @retval ret_code_t
+  */
+static ret_code_t ble_central_disconnect_target(uint16_t conn_handle)
+{
+    ret_code_t      err_code = NRF_SUCCESS;
+    
+    err_code = ble_central_disconnect(conn_handle);
+    
+    return err_code;
+}
 /**
   * @brief  Function for initializing the BLE stack. 
   * @note   Initializes the SoftDevice and the BLE event interrupts.
@@ -272,10 +357,13 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 	{
         /** on_ble_central_evt will update the connection handles, so we want to execute it
          * after dispatching to the central applications upon disconnection. */
-        if (p_ble_evt->header.evt_id != BLE_GAP_EVT_DISCONNECTED)
+        on_ble_central_evt(p_ble_evt);
+        
+        if (conn_handle < CENTRAL_LINK_COUNT + PERIPHERAL_LINK_COUNT)
         {
-            on_ble_central_evt(p_ble_evt);
-        }		
+            ble_db_discovery_on_ble_evt(&g_ble_db_discovery[conn_handle], p_ble_evt);
+            ble_bonding_ble_evt_handler(p_ble_evt);
+        }
 	}  
 }
 /**@brief Function for dispatching a system event to interested modules.
@@ -370,7 +458,7 @@ static void conn_params_init(void)
  */
 static void db_disc_handler(ble_db_discovery_evt_t * p_evt)
 {
-//    ble_hrs_on_db_disc_evt(&m_ble_hrs_c, p_evt);
+    ble_bonding_db_discovery_evt_handler(&g_DeviceInformation, p_evt);
 }
 
 /**
@@ -397,9 +485,6 @@ static void advertising_init(void)
     ble_advdata_t          				advdata;
 	ble_advdata_t              			scanrsp;
     ble_adv_modes_config_t 				options;
-	ble_advdata_manuf_data_t    		manuf;
-	uint8_array_t              			adv_manuf_data_array;
-	uint8_t                             manufdata[2];
 	ble_uuid_t 							scanrsp_uuids[] = {BLE_UUID_PASSKEY_AUTH_SERVICE,BLE_UUID_TYPE_BLE};
     ble_uuid_t							adv_uuids[] = {CHECK_UP_UUID_SERVICE,BLE_UUID_TYPE_BLE};
 
@@ -412,15 +497,7 @@ static void advertising_init(void)
     advdata.uuids_complete.uuid_cnt = sizeof(adv_uuids) / sizeof(adv_uuids[0]);
     advdata.uuids_complete.p_uuids  = adv_uuids;
 
-	/* advertise manufactor data */
-	manufdata[0]                    = g_DeviceInformation.SeriNum[2];
-	manufdata[1]                    = g_DeviceInformation.SeriNum[3];
-	adv_manuf_data_array.p_data     = manufdata;
-	adv_manuf_data_array.size       = 2;
-	manuf.company_identifier        = g_DeviceInformation.SeriNum[1]*256 + g_DeviceInformation.SeriNum[0];
-	manuf.data                      = adv_manuf_data_array;
-	advdata.p_manuf_specific_data   = &manuf;
-	
+
 	memset(&scanrsp, 0, sizeof(scanrsp));
     scanrsp.uuids_complete.uuid_cnt = sizeof(scanrsp_uuids) / sizeof(scanrsp_uuids[0]);
     scanrsp.uuids_complete.p_uuids  = scanrsp_uuids;
@@ -464,6 +541,19 @@ static void services_init(void)
 	}
 }
 /**
+  * @brief  Function for initializing the ble central service
+  * @param  None
+  * @retval status
+  */
+static uint32_t ble_central_service_init(void)
+{
+    uint32_t    ret = NRF_ERROR_INVALID_PARAM;
+    
+    ret = ble_central_service_bonding_init(&g_DeviceInformation.bonding_service);
+    
+    return ret;
+}
+/**
   * @brief  vTimerStopBleScanCB
   * @note   stop ble scan timer call back
   * @param  void * p_context
@@ -502,9 +592,9 @@ static void reset_scan_list(void)
   */
 static void reset_target_Connnect_DevInfo(void)
 {
-    memset(&m_targetConnectDevInfo,0,sizeof(BLE_SCAN_LIST_T));
-    m_targetConnectDevInfo.isValid = true;
-    m_targetConnectDevInfo.rssi = DEFAULT_REF_RSSI;
+    memset(&g_DeviceInformation,0,sizeof(DeviceInfomation_t));
+    g_DeviceInformation.isValid = false;
+    g_DeviceInformation.rssi = DEFAULT_REF_RSSI;
 }
 
 /************************ (C) COPYRIGHT Chengdu CloudCare Healthcare Co., Ltd. *****END OF FILE****/

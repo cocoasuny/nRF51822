@@ -44,13 +44,7 @@ void bsp_init(void)
     
     /* shell_init */
     shell_init();
-	
-	/* for test */
-	g_DeviceInformation.SeriNum[0] = 0x12;
-	g_DeviceInformation.SeriNum[1] = 0x34;
-	g_DeviceInformation.SeriNum[2] = 0x56;
-	g_DeviceInformation.SeriNum[3] = 0x78;
-    
+	    
     printf("%s",Dev_Msg);
 }
 /**

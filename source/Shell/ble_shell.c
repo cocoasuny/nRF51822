@@ -44,6 +44,7 @@ const char BLE_HelpMsg[] =
 	" ble help\t\t- help.\r\n"
 	" ble start scan\t\t- start ble scan.\r\n"
     " ble stop scan\t\t- stop ble scan.\r\n"
+    " ble disconnect\t\t- disconnect the peer device.\r\n"
 	"\r\n";
 	
   
@@ -86,6 +87,12 @@ void Shell_BLE_Service(void)
         bleEventMsgValue.eventID = EVENT_APP_BLE_STOP_SCAN;
         err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
         APP_ERROR_CHECK(err_code);          
+    }
+    else if(StrComp(ptRxd ,"disconnect")) //断开蓝牙连接
+    {
+        bleEventMsgValue.eventID = EVENT_APP_BLE_DISCONNECT;
+        err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
+        APP_ERROR_CHECK(err_code);     
     }
     else if(StrComp(ptRxd,"help\r\n"))      //
     {
