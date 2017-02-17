@@ -28,8 +28,6 @@
 #include "ble_hci.h"
 #include "ble_conn_state.h"
 #include "ble_db_discovery.h"
-#include "ble_service_passkey.h"
-#include "ble_service_checkup.h"
 #include "app_uart.h"
 #include "nordic_common.h"
 #include "app_error.h"
@@ -50,18 +48,19 @@ typedef struct
 /* type struct define */
 typedef struct
 {
-	uint8_t             DevSupportCap;
-	uint8_t             DevREV[3];
-	uint8_t             FWREV[3];
-	uint8_t             Flag_ReceviedDevInfor;
-    uint8_t             STMBootVersion[3];
-    uint8_t             protocolVersion;
-    int8_t              rssi;
-    uint8_t             sn[SN_NUM_LEN];
-    ble_gap_addr_t      MACaddr;
-    bool                isValid;
-    uint16_t            conn_handle;
-    bonding_service_t   bonding_service;
+	uint8_t                             DevSupportCap;
+	uint8_t                             DevREV[3];
+	uint8_t                             FWREV[3];
+	uint8_t                             Flag_ReceviedDevInfor;
+    uint8_t                             STMBootVersion[3];
+    uint8_t                             protocolVersion;
+    int8_t                              rssi;
+    uint8_t                             sn[SN_NUM_LEN];
+    ble_gap_addr_t                      MACaddr;
+    bool                                isValid;
+    uint16_t                            conn_handle;
+    bonding_service_t                   bonding_service;
+    devinfo_manage_service_t            devinfo_manage_service;
 }DeviceInfomation_t;
 
 /*type struct define for ble scan list */

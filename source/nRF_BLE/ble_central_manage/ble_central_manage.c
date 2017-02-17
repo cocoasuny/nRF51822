@@ -16,6 +16,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "ble_central_manage.h"
 #include "ble_central_service_bonding.h"
+#include "ble_central_service_devinfo_manage.h"
 
 
 /* private variables declare -------------------------------------------------*/
@@ -23,6 +24,7 @@
 /* private function decalre --------------------------------------------------*/
 static void scan_advertise_data_report(const ble_gap_evt_adv_report_t *adv_report);
 static uint32_t adv_report_parse(uint8_t type, data_t * p_advdata, data_t * p_typedata);
+static void reset_ble_central_all_service(void);
 
 /**
  * @brief Parameters used when scanning.
@@ -146,8 +148,9 @@ void on_ble_central_evt(const ble_evt_t * const p_ble_evt)
 			#endif
             
             g_DeviceInformation.conn_handle = p_gap_evt->conn_handle;
-            /* Reset the bonding service pwd write and result char */
-            reset_ble_central_bonding_service(&g_DeviceInformation.bonding_service);
+            
+            /* Reset all the service and char */
+            reset_ble_central_all_service();
 
 			APP_ERROR_CHECK_BOOL(p_gap_evt->conn_handle < CENTRAL_LINK_COUNT + PERIPHERAL_LINK_COUNT);
 			err_code = ble_db_discovery_start(&g_ble_db_discovery[p_gap_evt->conn_handle], p_gap_evt->conn_handle);
@@ -170,10 +173,11 @@ void on_ble_central_evt(const ble_evt_t * const p_ble_evt)
 			#ifdef DEBUG_BLE_CONNECT
 				printf("CENTRAL: disconnected (reason: %d)\r\n",p_gap_evt->params.disconnected.reason);
 			#endif
-            
+            memset(&g_ble_db_discovery[p_gap_evt->conn_handle],0,sizeof(ble_db_discovery_t));
             g_DeviceInformation.conn_handle = BLE_CONN_HANDLE_INVALID;
-            /* Reset the bonding service pwd write and result char */
-            reset_ble_central_bonding_service(&g_DeviceInformation.bonding_service);
+            
+            /* Reset all the service and char */
+            reset_ble_central_all_service();
             
         } break; // BLE_GAP_EVT_DISCONNECTED
 
@@ -337,5 +341,17 @@ static uint32_t adv_report_parse (uint8_t type, data_t * p_advdata, data_t * p_t
     return NRF_ERROR_NOT_FOUND;
 }
 
+/**
+ * @brief reset all service and characteristic
+ *
+ * @param[in] none
+ *
+ * @retval none.
+ */
+static void reset_ble_central_all_service(void)
+{
+    reset_ble_central_bonding_service(&g_DeviceInformation.bonding_service);
+    reset_ble_central_devinfo_manage_service(&g_DeviceInformation.devinfo_manage_service);
+}
 /************************ (C) COPYRIGHT Chengdu CloudCare Healthcare Co., Ltd. *****END OF FILE****/
 

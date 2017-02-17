@@ -16,6 +16,9 @@
 #include "main.h"
 #include "sdk_common.h"
 
+/* discovery process debug switch */
+#define BLE_DEBUG_DISCOVERY
+
 #define SRV_DISC_START_HANDLE  0x0001                    /**< The start handle value used during service discovery. */
 #define DB_DISCOVERY_MAX_USERS BLE_DB_DISCOVERY_MAX_SRV  /**< The maximum number of users/registrations allowed by this module. */
 
@@ -241,8 +244,10 @@ static void on_srv_disc_completion(ble_db_discovery_t * p_db_discovery,
         // discovery is about to start.
         p_srv_being_discovered->char_count = 0;
 
-        printf("[DB]: Starting discovery of service with UUID 0x%x for Connection handle %d\r\n",
-               p_srv_being_discovered->srv_uuid.uuid, conn_handle);
+        #ifdef BLE_DEBUG_DISCOVERY
+            printf("[DB]: Starting discovery of service with UUID 0x%x for Connection handle %d\r\n",
+                   p_srv_being_discovered->srv_uuid.uuid, conn_handle);
+        #endif
 
         uint32_t err_code;
 
@@ -533,7 +538,9 @@ static void on_primary_srv_discovery_rsp(ble_db_discovery_t * const    p_db_disc
         uint32_t err_code;
         const ble_gattc_evt_prim_srvc_disc_rsp_t * p_prim_srvc_disc_rsp_evt;
 
-        printf("Found service UUID 0x%x\r\n", p_srv_being_discovered->srv_uuid.uuid);
+        #ifdef BLE_DEBUG_DISCOVERY
+            printf("Found service UUID 0x%x\r\n", p_srv_being_discovered->srv_uuid.uuid);
+        #endif
 
         p_prim_srvc_disc_rsp_evt = &(p_ble_gattc_evt->params.prim_srvc_disc_rsp);
 
@@ -545,6 +552,9 @@ static void on_primary_srv_discovery_rsp(ble_db_discovery_t * const    p_db_disc
 
         if (err_code != NRF_SUCCESS)
         {
+            #ifdef BLE_DEBUG_DISCOVERY
+                printf("find char err:%d\r\n",err_code);
+            #endif
             p_db_discovery->discovery_in_progress = false;
 
             // Error with discovering the service.
@@ -557,10 +567,18 @@ static void on_primary_srv_discovery_rsp(ble_db_discovery_t * const    p_db_disc
             m_pending_user_evts[0].evt.conn_handle = p_ble_gattc_evt->conn_handle;
             //m_evt_handler(&m_pending_user_evts[0].evt);
         }
+        #ifdef BLE_DEBUG_DISCOVERY
+        else
+        {
+            printf("find char of service:0x%x\r\n",p_srv_being_discovered->srv_uuid.uuid);
+        }
+        #endif
     }
     else
     {
-        printf("Service UUID 0x%x Not found\r\n", p_srv_being_discovered->srv_uuid.uuid);
+        #ifdef BLE_DEBUG_DISCOVERY
+            printf("Service UUID 0x%x Not found\r\n", p_srv_being_discovered->srv_uuid.uuid);
+        #endif
         // Trigger Service Not Found event to the application.
         discovery_complete_evt_trigger(p_db_discovery,
                                        false,
@@ -701,7 +719,7 @@ static void on_characteristic_discovery_rsp(ble_db_discovery_t * const    p_db_d
         {
             // No more characteristics and descriptors need to be discovered. Discovery is complete.
             // Send a discovery complete event to the user application.
-            printf("[DB]: Discovery of service with UUID 0x%x completed with success for Connection"
+            printf("[DB0]: Discovery of service with UUID 0x%x completed with success for Connection"
                    " handle %d\r\n", p_srv_being_discovered->srv_uuid.uuid,
                    p_ble_gattc_evt->conn_handle);
 
@@ -800,9 +818,11 @@ static void on_descriptor_discovery_rsp(ble_db_discovery_t * const    p_db_disco
 
     if (raise_discov_complete)
     {
-        printf("[DB]: Discovery of service with UUID 0x%x completed with success for Connection"
-               "handle %d\r\n", p_srv_being_discovered->srv_uuid.uuid,
-               p_ble_gattc_evt->conn_handle);
+        #ifdef BLE_DEBUG_DISCOVERY
+            printf("[DB1]: Discovery of service with UUID 0x%x completed with success for Connection"
+                   "handle %d\r\n", p_srv_being_discovered->srv_uuid.uuid,
+                                    p_ble_gattc_evt->conn_handle);
+        #endif
 
         discovery_complete_evt_trigger(p_db_discovery,
                                        true,
@@ -877,8 +897,10 @@ uint32_t ble_db_discovery_start(ble_db_discovery_t * const p_db_discovery,
 
     p_srv_being_discovered->srv_uuid = m_registered_handlers[p_db_discovery->curr_srv_ind];
 
-    printf("[DB]: Starting discovery of service with UUID 0x%x for Connection handle %d\r\n",
-           p_srv_being_discovered->srv_uuid.uuid, conn_handle);
+    #ifdef BLE_DEBUG_DISCOVERY
+        printf("[DB]: Starting discovery of service with UUID 0x%x for Connection handle %d\r\n",
+               p_srv_being_discovered->srv_uuid.uuid, conn_handle);
+    #endif
     
     uint32_t err_code;
 

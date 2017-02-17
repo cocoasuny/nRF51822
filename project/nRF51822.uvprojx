@@ -501,19 +501,14 @@
               <FilePath>..\source\nRF_BLE\ble_central_manage\ble_central_manage.c</FilePath>
             </File>
             <File>
-              <FileName>ble_service_passkey.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\nRF_BLE\ble_peripheral_services\ble_service_passkey.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_service_checkup.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\nRF_BLE\ble_peripheral_services\ble_service_checkup.c</FilePath>
-            </File>
-            <File>
               <FileName>ble_central_service_bonding.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\nRF_BLE\ble_central_services\ble_central_service_bonding.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_central_service_devinfo_manage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\nRF_BLE\ble_central_services\ble_central_service_devinfo_manage.c</FilePath>
             </File>
           </Files>
         </Group>

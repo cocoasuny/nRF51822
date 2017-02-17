@@ -18,7 +18,7 @@
   
 /* passkey uuid define for bonding */
 #define  BLE_UUID_PASSKEY_AUTH_SERVICE   	0x8939
-#define  BLE_UUID_PASSKEY_FEATURE_CHAR   	0x8940
+#define  BLE_UUID_PASSKEY_WRITE_CHAR   	    0x8940
 #define  BLE_UUID_AUTH_RESULT_CHAR       	0x8941 	
 
 /* passkey pin code length define */
@@ -142,14 +142,18 @@ void reset_ble_central_bonding_service(bonding_service_t *p_bondinf_service)
 void ble_bonding_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info, ble_db_discovery_evt_t * p_evt)
 {
     // Check if the Heart Rate Service was discovered.
-    if (p_evt->evt_type == BLE_DB_DISCOVERY_COMPLETE &&
+    if(p_evt->evt_type == BLE_DB_DISCOVERY_COMPLETE &&
         p_evt->params.discovered_db.srv_uuid.uuid == BLE_UUID_PASSKEY_AUTH_SERVICE &&
         p_evt->conn_handle == p_dev_info->conn_handle  //设备仍然处于连接中
     ) 
     {
         // Find the CCCD Handle of the characteristic.
         uint8_t i;
-
+        
+        #ifdef DEBUG_BLE_BONDING
+            printf("\tFind char for bonding:%d\r\n",(p_evt->params.discovered_db.char_count));
+        #endif
+        
         for(i = 0; i < (p_evt->params.discovered_db.char_count); i++)
         {
             // Find passkey write characteristic. Store CCCD handle and break.
@@ -161,12 +165,11 @@ void ble_bonding_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info, ble_db
                 p_dev_info->bonding_service.pwdWriteCharW.char_handle =
                                     p_evt->params.discovered_db.charateristics[i].characteristic.handle_value;
                 #ifdef DEBUG_BLE_BONDING
-                    printf("PWD Write Char find OK\r\n");
+                    printf("\t\tPWD Write Char find OK\r\n");
                 #endif
-            }
-            
+            }            
             // Find passkey confirm result characteristic. Store CCCD handle and break.
-            if(p_evt->params.discovered_db.charateristics[i].characteristic.uuid.uuid == 
+            else if(p_evt->params.discovered_db.charateristics[i].characteristic.uuid.uuid == 
                 BLE_UUID_AUTH_RESULT_CHAR)
             {
                 p_dev_info->bonding_service.pwdResultCharR.cccd_handle =
@@ -175,7 +178,7 @@ void ble_bonding_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info, ble_db
                                 p_evt->params.discovered_db.charateristics[i].characteristic.handle_value;
                 
                 #ifdef DEBUG_BLE_BONDING
-                    printf("PWD result Char find OK\r\n");
+                    printf("\t\tPWD result Char find OK\r\n");
                 #endif                
                 /*  Set to notify feature           */
                 cccd_configure (
@@ -190,10 +193,12 @@ void ble_bonding_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info, ble_db
             }            
         }
     }
+    #ifdef DEBUG_BLE_BONDING
     else if(p_evt->evt_type == BLE_DB_DISCOVERY_SRV_NOT_FOUND)
     {
-    
-    }
+        printf("Bond service not found\r\n");
+    }   
+    #endif
 }
 /**
   * @brief  the bonding service ble event handler

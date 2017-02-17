@@ -55,6 +55,17 @@ typedef struct
     char_db_t           pwdResultCharR;
 }bonding_service_t;
 
+/**
+ * @brief Structure for device information manage service
+ */
+typedef struct
+{
+    char_db_t           syncTimeCharW;
+    char_db_t           nameModifyCharW;
+    char_db_t           versionGetCharR;
+    char_db_t           batLevelGetCharR;
+}devinfo_manage_service_t;
+
 
 #endif /* __BLE_CENTRAL_SERVICE_COMM_H_ */
 

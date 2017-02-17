@@ -15,6 +15,7 @@
   
 #include "ble_top_implementation.h"
 #include "ble_central_service_bonding.h"
+#include "ble_central_service_devinfo_manage.h"
 
 
 
@@ -46,7 +47,7 @@ static void gap_params_init(void);
 static void conn_params_init(void);
 static void conn_params_error_handler(uint32_t nrf_error);
 static void advertising_init(void);
-static void on_adv_evt(ble_adv_evt_t ble_adv_evt);
+//static void on_adv_evt(ble_adv_evt_t ble_adv_evt);
 static ret_code_t start_ble_scan(void);
 static ret_code_t stop_ble_scan(void);
 static void services_init(void);
@@ -306,26 +307,26 @@ static void ble_stack_init(void)
  *
  * @param[in] ble_adv_evt  Advertising event.
  */
-static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
-{
-    switch (ble_adv_evt)
-    {
-        case BLE_ADV_EVT_FAST:
-            bsp_led_toggle(LED2);
-            break;
+//static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
+//{
+//    switch (ble_adv_evt)
+//    {
+//        case BLE_ADV_EVT_FAST:
+//            bsp_led_toggle(LED2);
+//            break;
 
-        case BLE_ADV_EVT_IDLE:
-        {
-            ret_code_t err_code;
-            err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
-            APP_ERROR_CHECK(err_code);
-        } break;
+//        case BLE_ADV_EVT_IDLE:
+//        {
+//            ret_code_t err_code;
+//            err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
+//            APP_ERROR_CHECK(err_code);
+//        } break;
 
-        default:
-            // No implementation needed.
-            break;
-    }
-}
+//        default:
+//            // No implementation needed.
+//            break;
+//    }
+//}
 
 /**
   * @brief  Function for dispatching a BLE stack event to all modules with a BLE stack event handler.
@@ -363,6 +364,7 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
         {
             ble_db_discovery_on_ble_evt(&g_ble_db_discovery[conn_handle], p_ble_evt);
             ble_bonding_ble_evt_handler(p_ble_evt);
+            ble_devinfo_manage_ble_evt_handler(p_ble_evt);
         }
 	}  
 }
@@ -459,6 +461,7 @@ static void conn_params_init(void)
 static void db_disc_handler(ble_db_discovery_evt_t * p_evt)
 {
     ble_bonding_db_discovery_evt_handler(&g_DeviceInformation, p_evt);
+    ble_devinfo_manage_db_discovery_evt_handler(&g_DeviceInformation, p_evt);
 }
 
 /**
@@ -481,34 +484,34 @@ static void db_discovery_init(void)
   */
 static void advertising_init(void)
 {
-    uint32_t               				err_code;
-    ble_advdata_t          				advdata;
-	ble_advdata_t              			scanrsp;
-    ble_adv_modes_config_t 				options;
-	ble_uuid_t 							scanrsp_uuids[] = {BLE_UUID_PASSKEY_AUTH_SERVICE,BLE_UUID_TYPE_BLE};
-    ble_uuid_t							adv_uuids[] = {CHECK_UP_UUID_SERVICE,BLE_UUID_TYPE_BLE};
+//    uint32_t               				err_code;
+//    ble_advdata_t          				advdata;
+//	ble_advdata_t              			scanrsp;
+//    ble_adv_modes_config_t 				options;
+//	ble_uuid_t 							scanrsp_uuids[] = {BLE_UUID_PASSKEY_AUTH_SERVICE,BLE_UUID_TYPE_BLE};
+//    ble_uuid_t							adv_uuids[] = {CHECK_UP_UUID_SERVICE,BLE_UUID_TYPE_BLE};
 
-    // Build advertising data struct to pass into @ref ble_advertising_init.
-    memset(&advdata, 0, sizeof(advdata));
+//    // Build advertising data struct to pass into @ref ble_advertising_init.
+//    memset(&advdata, 0, sizeof(advdata));
 
-    advdata.name_type               = BLE_ADVDATA_FULL_NAME;
-    advdata.include_appearance      = true;
-    advdata.flags                   = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
-    advdata.uuids_complete.uuid_cnt = sizeof(adv_uuids) / sizeof(adv_uuids[0]);
-    advdata.uuids_complete.p_uuids  = adv_uuids;
+//    advdata.name_type               = BLE_ADVDATA_FULL_NAME;
+//    advdata.include_appearance      = true;
+//    advdata.flags                   = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
+//    advdata.uuids_complete.uuid_cnt = sizeof(adv_uuids) / sizeof(adv_uuids[0]);
+//    advdata.uuids_complete.p_uuids  = adv_uuids;
 
 
-	memset(&scanrsp, 0, sizeof(scanrsp));
-    scanrsp.uuids_complete.uuid_cnt = sizeof(scanrsp_uuids) / sizeof(scanrsp_uuids[0]);
-    scanrsp.uuids_complete.p_uuids  = scanrsp_uuids;
-	
-    memset(&options, 0, sizeof(options));
-    options.ble_adv_fast_enabled  = true;
-    options.ble_adv_fast_interval = APP_ADV_INTERVAL;
-    options.ble_adv_fast_timeout  = APP_ADV_TIMEOUT_IN_SECONDS;
+//	memset(&scanrsp, 0, sizeof(scanrsp));
+//    scanrsp.uuids_complete.uuid_cnt = sizeof(scanrsp_uuids) / sizeof(scanrsp_uuids[0]);
+//    scanrsp.uuids_complete.p_uuids  = scanrsp_uuids;
+//	
+//    memset(&options, 0, sizeof(options));
+//    options.ble_adv_fast_enabled  = true;
+//    options.ble_adv_fast_interval = APP_ADV_INTERVAL;
+//    options.ble_adv_fast_timeout  = APP_ADV_TIMEOUT_IN_SECONDS;
 
-    err_code = ble_advertising_init(&advdata, &scanrsp, &options, on_adv_evt, NULL);
-    APP_ERROR_CHECK(err_code);
+//    err_code = ble_advertising_init(&advdata, &scanrsp, &options, on_adv_evt, NULL);
+//    APP_ERROR_CHECK(err_code);
 
 }
 /**
@@ -519,26 +522,7 @@ static void advertising_init(void)
   */
 static void services_init(void)
 {
-	uint32_t						err_code;
-	ble_checkup_service_init_t		checkup_service_init;
-	ble_passkey_service_init_t		passkey_service_init;
-	
-	/* Add immediately measure service */
-	memset(&checkup_service_init,0,sizeof(ble_checkup_service_init_t));
-	err_code = ble_checkup_service_init(&gBleServiceCheckUp,&checkup_service_init);
-	if(err_code != NRF_SUCCESS)
-	{
-		APP_ERROR_CHECK(err_code);
-	}
-	
-	
-	/* Add passkey confirm service */
-	memset(&passkey_service_init,0,sizeof(ble_passkey_service_init_t));
-	err_code = ble_passkey_service_init(&gBleServicePasskey,&passkey_service_init);
-	if(err_code != NRF_SUCCESS)
-	{
-		APP_ERROR_CHECK(err_code);
-	}
+
 }
 /**
   * @brief  Function for initializing the ble central service
@@ -550,6 +534,9 @@ static uint32_t ble_central_service_init(void)
     uint32_t    ret = NRF_ERROR_INVALID_PARAM;
     
     ret = ble_central_service_bonding_init(&g_DeviceInformation.bonding_service);
+    APP_ERROR_CHECK(ret);
+    ret = ble_central_service_devinfo_manage_init(&g_DeviceInformation.devinfo_manage_service);
+    APP_ERROR_CHECK(ret);
     
     return ret;
 }

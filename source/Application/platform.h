@@ -26,6 +26,7 @@
 #define DEBUG_BLE_EVENT
 #define DEBUG_BLE_SCAN
 #define DEBUG_BLE_BONDING
+#define DEBUG_BLE_PEER_DEVINFO_MANAGE
 
 /* shell debug switch --------------------------------------------------------*/
 #define SHELL_ENABLE
