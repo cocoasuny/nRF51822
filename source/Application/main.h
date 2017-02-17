@@ -17,24 +17,7 @@
 #ifndef __MAIN__
 #define __MAIN__
 
-#include <stdint.h>
-#include <string.h>
-#include "shell.h"
-#include "platform.h"
-#include "bsp.h"
-#include "nrf_drv_clock.h"
-#include "ble_top_implementation.h"
-#include "ble_central_manage.h"
-#include "ble_hci.h"
-#include "ble_conn_state.h"
-#include "ble_db_discovery.h"
-#include "app_uart.h"
-#include "nordic_common.h"
-#include "app_error.h"
-#include "softdevice_handler_appsh.h"
-#include "app_scheduler.h"
-#include "system_info_test.h"
-#include "ble_central_service_comm.h"
+#include "common.h"
 
 
 
@@ -59,6 +42,7 @@ typedef struct
     ble_gap_addr_t                      MACaddr;
     bool                                isValid;
     uint16_t                            conn_handle;
+    uint32_t                            char_find_manage;
     bonding_service_t                   bonding_service;
     devinfo_manage_service_t            devinfo_manage_service;
 }DeviceInfomation_t;

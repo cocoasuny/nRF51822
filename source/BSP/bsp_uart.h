@@ -17,7 +17,7 @@
 #ifndef __BSP_UART_H__
 #define __BSP_UART_H__
 
-#include "main.h"
+#include "common.h"
 
 
 void uart_init(void);

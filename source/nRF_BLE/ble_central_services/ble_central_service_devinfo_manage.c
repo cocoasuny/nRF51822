@@ -154,6 +154,7 @@ void ble_devinfo_manage_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info,
                                     p_evt->params.discovered_db.charateristics[i].cccd_handle;
                 p_dev_info->devinfo_manage_service.syncTimeCharW.char_handle =
                                     p_evt->params.discovered_db.charateristics[i].characteristic.handle_value;
+                p_dev_info->char_find_manage |= YWK_CHARACTER_SYC_TIME;
                 #ifdef DEBUG_BLE_PEER_DEVINFO_MANAGE
                     printf("\t\tTime sync Char find OK\r\n");
                 #endif
@@ -166,6 +167,7 @@ void ble_devinfo_manage_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info,
                                 p_evt->params.discovered_db.charateristics[i].cccd_handle;
                 p_dev_info->devinfo_manage_service.nameModifyCharW.char_handle =
                                 p_evt->params.discovered_db.charateristics[i].characteristic.handle_value;
+                p_dev_info->char_find_manage |= YWK_CHARACTER_NAME_MODIFY;
                 
                 #ifdef DEBUG_BLE_PEER_DEVINFO_MANAGE
                     printf("\t\tName modify result Char find OK\r\n");
@@ -179,6 +181,7 @@ void ble_devinfo_manage_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info,
                                 p_evt->params.discovered_db.charateristics[i].cccd_handle;
                 p_dev_info->devinfo_manage_service.versionGetCharR.char_handle =
                                 p_evt->params.discovered_db.charateristics[i].characteristic.handle_value;
+                p_dev_info->char_find_manage |= YWK_CHARACTER_VERSION_GET;
                                
                 /*  Set to notify feature           */
                 cccd_configure (
@@ -197,6 +200,7 @@ void ble_devinfo_manage_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info,
                                 p_evt->params.discovered_db.charateristics[i].cccd_handle;
                 p_dev_info->devinfo_manage_service.batLevelGetCharR.char_handle =
                                 p_evt->params.discovered_db.charateristics[i].characteristic.handle_value;
+                p_dev_info->char_find_manage |= YWK_CHARACTER_BAT_LEVEL_GET;
                                
                 /*  Set to notify feature           */
                 cccd_configure (

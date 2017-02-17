@@ -18,15 +18,8 @@
 #define __BLE_TOP_IMPLEMENTATION_H_
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
-#include "ble_db_discovery.h"
-#include "ble_conn_params.h"
-#include "app_timer.h"
-#include "ble_advdata.h"
-#include "ble_advertising.h"
-#include "fstorage.h"
-#include "nrf_sdm.h"
-#include "softdevice_handler_appsh.h"
+#include "common.h"
+
 
 
 
@@ -45,6 +38,7 @@
 void ble_init(void);
 void ble_task_handler(void *p_event_data,uint16_t event_size);
 void ble_scan_control_timer_init(void);
+void start_character_find_status_manage_timer(DeviceInfomation_t *p_dev);
 
 
 

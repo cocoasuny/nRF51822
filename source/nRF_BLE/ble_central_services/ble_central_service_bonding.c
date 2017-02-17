@@ -164,6 +164,7 @@ void ble_bonding_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info, ble_db
                                     p_evt->params.discovered_db.charateristics[i].cccd_handle;
                 p_dev_info->bonding_service.pwdWriteCharW.char_handle =
                                     p_evt->params.discovered_db.charateristics[i].characteristic.handle_value;
+                p_dev_info->char_find_manage |= YWK_CHARACTER_PWD_WRITE;
                 #ifdef DEBUG_BLE_BONDING
                     printf("\t\tPWD Write Char find OK\r\n");
                 #endif
@@ -176,6 +177,7 @@ void ble_bonding_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info, ble_db
                                 p_evt->params.discovered_db.charateristics[i].cccd_handle;
                 p_dev_info->bonding_service.pwdResultCharR.char_handle =
                                 p_evt->params.discovered_db.charateristics[i].characteristic.handle_value;
+                p_dev_info->char_find_manage |= YWK_CHARACTER_PWD_RESULT;
                 
                 #ifdef DEBUG_BLE_BONDING
                     printf("\t\tPWD result Char find OK\r\n");

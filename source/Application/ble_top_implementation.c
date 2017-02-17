@@ -12,10 +12,8 @@
   *
   ****************************************************************************************
   */
-  
 #include "ble_top_implementation.h"
-#include "ble_central_service_bonding.h"
-#include "ble_central_service_devinfo_manage.h"
+
 
 
 
@@ -35,6 +33,7 @@
 
 /* private variables define */
 APP_TIMER_DEF(m_ble_scanCTL_timer_id);                  /**<ble scan control timer. */
+APP_TIMER_DEF(m_ble_char_find_manage_timer_id);         /**<timer to poll the status of character find manage. */
 
 
 /* private function declare */
@@ -53,6 +52,7 @@ static ret_code_t stop_ble_scan(void);
 static void services_init(void);
 static uint32_t ble_central_service_init(void);
 static void vTimerStopBleScanCB(void * p_context);
+static void vTimerCharFindStatusPollCB(void *p_context);
 static void reset_scan_list(void);
 static void reset_target_Connnect_DevInfo(void);
 static ret_code_t ble_central_connect_target(ble_gap_addr_t *peerAddr);
@@ -203,6 +203,19 @@ void ble_task_handler(void *p_event_data,uint16_t event_size)
 void ble_scan_control_timer_init(void)
 {
     app_timer_create(&m_ble_scanCTL_timer_id,APP_TIMER_MODE_SINGLE_SHOT,vTimerStopBleScanCB);       
+}
+/**
+  * @brief  start the time of polling the status of character find management
+  * @param  *p_dev
+  * @retval None
+  */
+void start_character_find_status_manage_timer(DeviceInfomation_t *p_dev)
+{
+    ret_code_t  err_code = NRF_ERROR_NULL;
+     
+    /* start the timer of polling the status of character find management */
+    err_code = app_timer_start(m_ble_char_find_manage_timer_id,FIND_CHAR_STATUS_POLL_TIME,p_dev);
+    APP_ERROR_CHECK(err_code); 
 }
 
 /**@brief Function for start ble scanning.
@@ -474,6 +487,10 @@ static void db_discovery_init(void)
 {
     ret_code_t err_code = ble_db_discovery_init(db_disc_handler);
     APP_ERROR_CHECK(err_code);
+    
+    /* allocate a timer to poll the status of character find management */
+    err_code = app_timer_create(&m_ble_char_find_manage_timer_id,APP_TIMER_MODE_REPEATED,vTimerCharFindStatusPollCB);
+    APP_ERROR_CHECK(err_code);
 }
 
 /**
@@ -556,6 +573,29 @@ static void vTimerStopBleScanCB(void * p_context)
     err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
     APP_ERROR_CHECK(err_code);    
 }
+/**
+  * @brief  vTimerCharFindStatusPollCB
+  * @note   polling the status of character find manage
+  * @param  void * p_context
+  * @retval None
+  */
+static void vTimerCharFindStatusPollCB(void *p_context)
+{
+    ret_code_t  err_code = NRF_ERROR_NULL;
+    DeviceInfomation_t  *dev = (DeviceInfomation_t *)p_context;
+    
+    if(dev->char_find_manage == YWK_CHARACTER_ALL)  //所有的character已发现完成
+    {
+        /* stop the timer of scan control */
+        err_code = app_timer_stop(m_ble_scanCTL_timer_id);
+        APP_ERROR_CHECK(err_code);
+        
+        #ifdef DEBUG_BLE_CONNECT
+            printf("YWK character find complete\r\n");
+        #endif
+    }
+}
+
 /**
   * @brief  reset_scan_list
   * @param  None

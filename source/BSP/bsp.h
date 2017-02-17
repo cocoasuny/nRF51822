@@ -17,11 +17,7 @@
 #ifndef BSP_H__
 #define BSP_H__
 
-#include "platform.h"
-#include "bsp_uart.h"
-#include "main.h"
-#include "bsp_led.h"
-#include "app_timer_appsh.h"
+#include "common.h"
 
 
 /* type struct define */

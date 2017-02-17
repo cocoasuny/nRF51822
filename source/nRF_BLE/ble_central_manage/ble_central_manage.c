@@ -15,8 +15,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "ble_central_manage.h"
-#include "ble_central_service_bonding.h"
-#include "ble_central_service_devinfo_manage.h"
+
 
 
 /* private variables declare -------------------------------------------------*/
@@ -175,6 +174,7 @@ void on_ble_central_evt(const ble_evt_t * const p_ble_evt)
 			#endif
             memset(&g_ble_db_discovery[p_gap_evt->conn_handle],0,sizeof(ble_db_discovery_t));
             g_DeviceInformation.conn_handle = BLE_CONN_HANDLE_INVALID;
+            g_DeviceInformation.char_find_manage = YWK_CHARACTER_NONE;
             
             /* Reset all the service and char */
             reset_ble_central_all_service();
