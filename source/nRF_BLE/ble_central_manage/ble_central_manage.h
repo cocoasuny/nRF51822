@@ -17,7 +17,7 @@
 #ifndef __BLE_CENTRAL_MANAGE_H__
 #define __BLE_CENTRAL_MANAGE_H__
 
-#include "common.h"
+#include "include.h"
 
 
 /* Central related define  */

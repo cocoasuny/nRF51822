@@ -17,7 +17,7 @@
 #ifndef _SYSTEM_INFO_TESY_
 #define _SYSTEM_INFO_TESY_
 
-#include "main.h"
+#include "include.h"
 
 void system_info_test_timer_init(void);
 void ble_scan_test(void);

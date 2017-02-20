@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include "ble.h"
 #include "nrf_log.h"
-#include "main.h"
+#include "include.h"
 #include "sdk_common.h"
 
 /* discovery process debug switch */

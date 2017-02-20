@@ -18,7 +18,7 @@
 #define __BLE_CENTRAL_SERVICE_BONDING_H_
 
 /* Includes ------------------------------------------------------------------*/
-#include "common.h"
+#include "include.h"
 
 
 /* function declare */

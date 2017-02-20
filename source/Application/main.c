@@ -13,7 +13,7 @@
   ****************************************************************************************
   */
   
-#include "main.h"
+#include "include.h"
 
 /* gloable variables define */
 DeviceInfomation_t  		g_DeviceInformation;                            //硬件设备信息
