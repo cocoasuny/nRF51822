@@ -155,6 +155,9 @@ void on_ble_central_evt(const ble_evt_t * const p_ble_evt)
 			err_code = ble_db_discovery_start(&g_ble_db_discovery[p_gap_evt->conn_handle], p_gap_evt->conn_handle);
 			APP_ERROR_CHECK(err_code);
             
+            /* start the time to poll the character find status */
+            start_character_find_status_manage_timer(&g_DeviceInformation);
+            
             /** check if we should be looking for more peripherals to connect to. */
             if (ble_conn_state_n_centrals() <= CENTRAL_LINK_COUNT)
             {
@@ -178,6 +181,9 @@ void on_ble_central_evt(const ble_evt_t * const p_ble_evt)
             
             /* Reset all the service and char */
             reset_ble_central_all_service();
+            
+            /* stop the time to poll the character find status */
+            stop_character_find_status_manage_timer(&g_DeviceInformation);
             
         } break; // BLE_GAP_EVT_DISCONNECTED
 

@@ -65,6 +65,9 @@ static ret_code_t ble_central_disconnect_target(uint16_t conn_handle);
   */
 void ble_init(void)
 {	
+    g_DeviceInformation.conn_handle = BLE_CONN_HANDLE_INVALID;
+    g_DeviceInformation.char_find_manage = YWK_CHARACTER_NONE;
+       
 	/* ble stack init */
 	ble_stack_init();	
 	db_discovery_init();
@@ -216,6 +219,19 @@ void start_character_find_status_manage_timer(DeviceInfomation_t *p_dev)
     /* start the timer of polling the status of character find management */
     err_code = app_timer_start(m_ble_char_find_manage_timer_id,FIND_CHAR_STATUS_POLL_TIME,p_dev);
     APP_ERROR_CHECK(err_code); 
+}
+/**
+  * @brief  stop the time of polling the status of character find management
+  * @param  *p_dev
+  * @retval None
+  */
+void stop_character_find_status_manage_timer(DeviceInfomation_t *p_dev)
+{
+    ret_code_t  err_code = NRF_ERROR_NULL;
+    
+    /* stop the timer of character find status polling */
+    err_code = app_timer_stop(m_ble_char_find_manage_timer_id);
+    APP_ERROR_CHECK(err_code);
 }
 
 /**@brief Function for start ble scanning.
@@ -583,16 +599,19 @@ static void vTimerCharFindStatusPollCB(void *p_context)
 {
     ret_code_t  err_code = NRF_ERROR_NULL;
     DeviceInfomation_t  *dev = (DeviceInfomation_t *)p_context;
+    dev = dev;
     
-    if(dev->char_find_manage == YWK_CHARACTER_ALL)  //所有的character已发现完成
+    if(g_DeviceInformation.char_find_manage == YWK_CHARACTER_ALL)  //所有的character已发现完成
     {
-        /* stop the timer of scan control */
-        err_code = app_timer_stop(m_ble_scanCTL_timer_id);
+        /* stop the timer of character find status polling */
+        err_code = app_timer_stop(m_ble_char_find_manage_timer_id);
         APP_ERROR_CHECK(err_code);
         
         #ifdef DEBUG_BLE_CONNECT
-            printf("YWK character find complete\r\n");
+            printf("YWK character find complete:0x%x\r\n",g_DeviceInformation.char_find_manage);
         #endif
+        
+        
     }
 }
 
