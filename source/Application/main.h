@@ -45,6 +45,7 @@ typedef struct
     uint32_t                            char_find_manage;
     bonding_service_t                   bonding_service;
     devinfo_manage_service_t            devinfo_manage_service;
+    monitor_template_service_t          monitor_template_service;
 }DeviceInfomation_t;
 
 /*type struct define for ble scan list */

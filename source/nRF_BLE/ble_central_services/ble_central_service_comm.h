@@ -66,6 +66,15 @@ typedef struct
     char_db_t           batLevelGetCharR;
 }devinfo_manage_service_t;
 
+/**
+ * @brief Structure for monitor template service
+ */
+typedef struct
+{
+    char_db_t           monitorTemplateSetCharW;
+    char_db_t           monitorTemplateSetResultCharR;
+}monitor_template_service_t;
+
 
 #endif /* __BLE_CENTRAL_SERVICE_COMM_H_ */
 

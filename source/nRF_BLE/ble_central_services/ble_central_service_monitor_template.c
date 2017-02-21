@@ -1,14 +1,12 @@
 /**
   ****************************************************************************************
-  * @file    ble_central_service_devinfo_manage.c
+  * @file    ble_central_service_monitor_template.c
   * @author  Jason
   * @version V1.0.0
-  * @date    2017-2-15
-  * @brief   manage the information for the peers,include：
-  *             - write the current time to the peers
-  *             - modify the device name of the peers
-  *             - read the soft&hw version from the peers
-  *             - get the battery level of the peers
+  * @date    2017-2-21
+  * @brief   manage the monitor template for the peers,include：
+  *             - write the monitor template to the peers
+  *             - get the monitor template write result of the peers
   ****************************************************************************************
   * @attention
   *
@@ -18,24 +16,20 @@
   */
   
 /* Includes ------------------------------------------------------------------*/
-#include "ble_central_service_devinfo_manage.h"
+#include "ble_central_service_monitor_template.h"
 
+/* UUID define for the peer monitor template service and characteristic */
+#define  BLE_UUID_MONITOR_TEMPLATE_SERVICE                  0xDA6A
+#define  BLE_UUID_MONITOR_TEMPLATE_SET_CHAR                 0xDA6B
+#define  BLE_UUID_MONITOR_TEMPLATE_RESULT_CHAR       		0xDA6C
 
-/* uuid define for the peer device information manage service and char */
-#define BLE_UUID_DEVICE_INFORMATION_MANAGE_SERVICE				0x2FC0
-#define BLE_UUID_DEVICE_NAME_CHAR                     			0x2FC1
-#define BLE_UUID_DEVICE_VERSION_CHAR                  			0x2FC2
-#define BLE_UUID_DEVICE_BATTERY_LEVEL_CHAR                   	0x2FC3
-#define BLE_UUID_DEVICE_CURRENT_TIME_CHAR                    	0x2FC4
-
-static const ble_uuid128_t DEVINFO_MANAGE_UUID_128B = { 0x48, 0x73, 0x35, 0x03, 0xE7, 0xD5, 0x0C, 0xBC, 
-                                                        0x50, 0x5F, 0x89, 0x9C, 0xC0, 0x2F, 0x8A, 0xE0 };
-
+static const ble_uuid128_t MONITOR_TEMPLATE_UUID_128B =	{ 0x92, 0xE5, 0x2B, 0xE5, 0xF8, 0xD8, 0x83, 0x01, 
+                                                          0x61, 0x8B, 0x0E, 0x01, 0x6A, 0xDA, 0x2A, 0x4E};
 #define SYNC_TIME_DATA_LEN      7
 #define TX_BUFFER_MASK       0x07                  /**< TX Buffer mask, must be a mask of contiguous zeroes, followed by contiguous sequence of ones: 000...111. */
 #define TX_BUFFER_SIZE       (TX_BUFFER_MASK + 1)  /**< Size of the send buffer, which is 1 higher than the mask. */
 #define WRITE_MESSAGE_LENGTH BLE_CCCD_VALUE_LEN    /**< Length of the write message for CCCD. */
-                                             
+                                                          
 /**@brief Structure for holding the data that will be transmitted to the connected central.
  */
 typedef struct
@@ -63,173 +57,113 @@ static void on_read_rsp (const ble_evt_t * p_ble_evt);
 static void write_to_client(uint16_t conn_handle,uint16_t char_handle, uint8_t *pData,uint8_t length);
 
 /**
-  * @brief  init the device information manage service
-  * @param  *p_devinfo_manage_service
+  * @brief  init the monitor template service
+  * @param  *p_monitor_template_service
   * @retval status
   */
-uint32_t ble_central_service_devinfo_manage_init(devinfo_manage_service_t *p_devinfo_manage_service)
+uint32_t ble_central_service_monitor_template_init(monitor_template_service_t *p_monitor_template_service)
 {
     ble_uuid_t          bas_uuid;
     
-    /* Reset the all the char of device information manage service */
-    reset_ble_central_devinfo_manage_service(p_devinfo_manage_service);
+    /* Reset the all the char of monitor template service */
+    reset_ble_central_monitor_template_service(p_monitor_template_service);
     
-    sd_ble_uuid_vs_add (&DEVINFO_MANAGE_UUID_128B, &bas_uuid.type);
-    bas_uuid.uuid = BLE_UUID_DEVICE_INFORMATION_MANAGE_SERVICE;
+    sd_ble_uuid_vs_add (&MONITOR_TEMPLATE_UUID_128B, &bas_uuid.type);
+    bas_uuid.uuid = BLE_UUID_MONITOR_TEMPLATE_SERVICE;
 
     return ble_db_discovery_evt_register(&bas_uuid);    
 }
 
 /**
-  * @brief  ble central device write pin code to the cleint
-  * @param  *p_dev
-  * @retval None
-  */
-void ble_central_synctime_write(DeviceInfomation_t *p_dev, time_t p_time)
-{
-    uint8_t temp[SYNC_TIME_DATA_LEN] = {0};
-    time_t nowTime = p_time;
-    
-    struct tm * timeNow = localtime(&nowTime);
-    
-    temp[0] = timeNow->tm_year/100;
-    temp[1] = timeNow->tm_year%100;
-    temp[2] = timeNow->tm_mon + 1;
-    temp[3] = timeNow->tm_mday;
-    temp[4] = timeNow->tm_hour;
-    temp[5] = timeNow->tm_min;
-    temp[6] = timeNow->tm_sec;
-    
-    write_to_client(p_dev->conn_handle,p_dev->devinfo_manage_service.syncTimeCharW.char_handle,temp,SYNC_TIME_DATA_LEN);
-}
-
-/**
-  * @brief  reset the device information manage service
+  * @brief  reset the device monitor template service
   * @param  *p_devinfo_manage_service
   * @retval None
   */
-void reset_ble_central_devinfo_manage_service(devinfo_manage_service_t *p_devinfo_manage_service)
+void reset_ble_central_monitor_template_service(monitor_template_service_t *p_monitor_template_service)
 {
-    /* Reset all the characteristic of device information manage service */
-    p_devinfo_manage_service->batLevelGetCharR.cccd_handle = BLE_CONN_HANDLE_INVALID;
-    p_devinfo_manage_service->batLevelGetCharR.char_handle = BLE_CONN_HANDLE_INVALID;
+    /* Reset all the characteristic of monitor template service */
+    p_monitor_template_service->monitorTemplateSetCharW.cccd_handle = BLE_CONN_HANDLE_INVALID;
+    p_monitor_template_service->monitorTemplateSetCharW.char_handle = BLE_CONN_HANDLE_INVALID;
     
-    p_devinfo_manage_service->nameModifyCharW.cccd_handle = BLE_CONN_HANDLE_INVALID;
-    p_devinfo_manage_service->nameModifyCharW.char_handle = BLE_CONN_HANDLE_INVALID;
-    
-    p_devinfo_manage_service->syncTimeCharW.cccd_handle = BLE_CONN_HANDLE_INVALID;
-    p_devinfo_manage_service->syncTimeCharW.char_handle = BLE_CONN_HANDLE_INVALID;
-    
-    p_devinfo_manage_service->versionGetCharR.cccd_handle = BLE_CONN_HANDLE_INVALID;
-    p_devinfo_manage_service->versionGetCharR.char_handle = BLE_CONN_HANDLE_INVALID;
+    p_monitor_template_service->monitorTemplateSetResultCharR.cccd_handle = BLE_CONN_HANDLE_INVALID;
+    p_monitor_template_service->monitorTemplateSetResultCharR.char_handle = BLE_CONN_HANDLE_INVALID;
 }
 
 /**
-  * @brief  the device information manage service discovery event handler
+  * @brief  the monitor template service discovery event handler
   * @param  *p_dev_info,* p_evt
   * @retval None
   */  
-void ble_devinfo_manage_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info, ble_db_discovery_evt_t * p_evt)
+void ble_monitor_template_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info, ble_db_discovery_evt_t * p_evt)
 {
     // Check if the device information manage Service was discovered.
     if (p_evt->evt_type == BLE_DB_DISCOVERY_COMPLETE &&
-        p_evt->params.discovered_db.srv_uuid.uuid == BLE_UUID_DEVICE_INFORMATION_MANAGE_SERVICE &&
+        p_evt->params.discovered_db.srv_uuid.uuid == BLE_UUID_MONITOR_TEMPLATE_SERVICE &&
         p_evt->conn_handle == p_dev_info->conn_handle  //设备仍然处于连接中
     ) 
     {
         // Find the CCCD Handle of the characteristic.
         uint8_t i;
         
-        #ifdef DEBUG_BLE_PEER_DEVINFO_MANAGE
-            printf("\tFind char for devinfo manage:%d\r\n",(p_evt->params.discovered_db.char_count));
+        #ifdef DEBUG_BLE_MONITOR_TEMPLATE
+            printf("\tFind char for monitor template:%d\r\n",(p_evt->params.discovered_db.char_count));
         #endif
         
         for(i = 0; i < (p_evt->params.discovered_db.char_count); i++)
         {
-            // Find the time sync characteristic. Store CCCD handle and break.
+            // Find the monitor template write character. Store CCCD handle and break.
             if(p_evt->params.discovered_db.charateristics[i].characteristic.uuid.uuid ==
-                BLE_UUID_DEVICE_CURRENT_TIME_CHAR)
+                BLE_UUID_MONITOR_TEMPLATE_SET_CHAR)
             {
-                p_dev_info->devinfo_manage_service.syncTimeCharW.cccd_handle =
+                p_dev_info->monitor_template_service.monitorTemplateSetCharW.cccd_handle =
                                     p_evt->params.discovered_db.charateristics[i].cccd_handle;
-                p_dev_info->devinfo_manage_service.syncTimeCharW.char_handle =
+                p_dev_info->monitor_template_service.monitorTemplateSetCharW.char_handle =
                                     p_evt->params.discovered_db.charateristics[i].characteristic.handle_value;
-                p_dev_info->char_find_manage |= YWK_CHARACTER_SYC_TIME;
-                #ifdef DEBUG_BLE_PEER_DEVINFO_MANAGE
-                    printf("\t\tTime sync Char find OK\r\n");
+                p_dev_info->char_find_manage |= YWK_CHARACTER_MONITOR_TEMPLATE_SET;
+                
+                #ifdef DEBUG_BLE_MONITOR_TEMPLATE
+                    printf("\t\t Monitor Template Char find OK\r\n");
                 #endif
             }            
-            // Find the modify device name characteristic. Store CCCD handle and break.
+            // Find the monitor template set result characteristic. Store CCCD handle and break.
             else if(p_evt->params.discovered_db.charateristics[i].characteristic.uuid.uuid == 
-                BLE_UUID_DEVICE_NAME_CHAR)
+                BLE_UUID_MONITOR_TEMPLATE_RESULT_CHAR)
             {
-                p_dev_info->devinfo_manage_service.nameModifyCharW.cccd_handle =
+                p_dev_info->monitor_template_service.monitorTemplateSetResultCharR.cccd_handle =
                                 p_evt->params.discovered_db.charateristics[i].cccd_handle;
-                p_dev_info->devinfo_manage_service.nameModifyCharW.char_handle =
+                p_dev_info->monitor_template_service.monitorTemplateSetResultCharR.char_handle =
                                 p_evt->params.discovered_db.charateristics[i].characteristic.handle_value;
-                p_dev_info->char_find_manage |= YWK_CHARACTER_NAME_MODIFY;
+                p_dev_info->char_find_manage |= YWK_CHARACTER_MONITOR_TEMPLATE_RESULT;
                 
-                #ifdef DEBUG_BLE_PEER_DEVINFO_MANAGE
-                    printf("\t\tName modify result Char find OK\r\n");
-                #endif                           
-            }            
-            // Find the read soft&hw version characteristic. Store CCCD handle and break.
-            else if(p_evt->params.discovered_db.charateristics[i].characteristic.uuid.uuid == 
-                BLE_UUID_DEVICE_VERSION_CHAR)
-            {
-                p_dev_info->devinfo_manage_service.versionGetCharR.cccd_handle =
-                                p_evt->params.discovered_db.charateristics[i].cccd_handle;
-                p_dev_info->devinfo_manage_service.versionGetCharR.char_handle =
-                                p_evt->params.discovered_db.charateristics[i].characteristic.handle_value;
-                p_dev_info->char_find_manage |= YWK_CHARACTER_VERSION_GET;
-                               
+                #ifdef DEBUG_BLE_MONITOR_TEMPLATE
+                    printf("\t\tMonitor Template result Char find OK\r\n");
+                #endif 
+
                 /*  Set to notify feature           */
                 cccd_configure (
                                 p_evt->conn_handle,
-                                p_dev_info->devinfo_manage_service.versionGetCharR.cccd_handle,
-                                true); 
-                #ifdef DEBUG_BLE_PEER_DEVINFO_MANAGE
-                    printf("\t\tGet version Char find OK\r\n");
-                #endif                 
-            }
-            // Find the get battery level characteristic. Store CCCD handle and break.
-            else if(p_evt->params.discovered_db.charateristics[i].characteristic.uuid.uuid == 
-                BLE_UUID_DEVICE_BATTERY_LEVEL_CHAR)
-            {
-                p_dev_info->devinfo_manage_service.batLevelGetCharR.cccd_handle =
-                                p_evt->params.discovered_db.charateristics[i].cccd_handle;
-                p_dev_info->devinfo_manage_service.batLevelGetCharR.char_handle =
-                                p_evt->params.discovered_db.charateristics[i].characteristic.handle_value;
-                p_dev_info->char_find_manage |= YWK_CHARACTER_BAT_LEVEL_GET;
-                               
-                /*  Set to notify feature           */
-                cccd_configure (
-                                p_evt->conn_handle,
-                                p_dev_info->devinfo_manage_service.batLevelGetCharR.cccd_handle,
-                                true); 
-                #ifdef DEBUG_BLE_PEER_DEVINFO_MANAGE
-                    printf("\t\tGet batLevel Char find OK\r\n");
-                #endif                 
-            }            
+                                p_dev_info->monitor_template_service.monitorTemplateSetResultCharR.cccd_handle,
+                                true);                
+            }                       
         }
     }
-    #ifdef DEBUG_BLE_PEER_DEVINFO_MANAGE
+    #ifdef DEBUG_BLE_MONITOR_TEMPLATE
     else if(p_evt->evt_type == BLE_DB_DISCOVERY_SRV_NOT_FOUND)
     {
-        if(p_evt->params.discovered_db.srv_uuid.uuid == BLE_UUID_DEVICE_INFORMATION_MANAGE_SERVICE)
+        if(p_evt->params.discovered_db.srv_uuid.uuid == BLE_UUID_MONITOR_TEMPLATE_SERVICE)
         {
-            printf("devinfo manage service not found\r\n");
-        }     
+            printf("monitor template service not found\r\n");
+        }    
     }
     #endif
 }
 
 /**
-  * @brief  the device information manage ble event handler
+  * @brief  the monitor template ble event handler
   * @param  * p_evt
   * @retval None
   */  
-void ble_devinfo_manage_ble_evt_handler(ble_evt_t * p_ble_evt)
+void ble_monitor_template_ble_evt_handler(ble_evt_t * p_ble_evt)
 {
     if (p_ble_evt == NULL)
     {
@@ -256,7 +190,6 @@ void ble_devinfo_manage_ble_evt_handler(ble_evt_t * p_ble_evt)
         default:break;
     }
 }
-
 /**@brief Function for creating a message for writing to the CCCD.
  */
 static uint32_t cccd_configure(uint16_t conn_handle, uint16_t handle_cccd, bool notification_enable)
@@ -304,7 +237,7 @@ static void tx_buffer_process(void)
         }
         if (err_code == NRF_SUCCESS)
         {
-            #ifdef DEBUG_BLE_PEER_DEVINFO_MANAGE
+            #ifdef DEBUG_BLE_MONITOR_TEMPLATE
                 printf("devinfo manage SD Read/Write API returns Success..\r\n");
             #endif
             m_tx_index++;
@@ -312,7 +245,7 @@ static void tx_buffer_process(void)
         }
         else
         {
-            #ifdef DEBUG_BLE_PEER_DEVINFO_MANAGE
+            #ifdef DEBUG_BLE_MONITOR_TEMPLATE
                 printf("devinfo manage SD Read/Write error = 0x%x\r\n", err_code);
             #endif
         }
@@ -331,11 +264,11 @@ static void on_hvx (const ble_evt_t * p_ble_evt)
 {    
     // Check if this notification is a battery level notification.
     if(p_ble_evt->evt.gattc_evt.params.hvx.handle
-            == g_DeviceInformation.devinfo_manage_service.batLevelGetCharR.char_handle)
+            == g_DeviceInformation.monitor_template_service.monitorTemplateSetResultCharR.char_handle)
     {        
         /*  get the battery level result       */
-        #ifdef DEBUG_BLE_PEER_DEVINFO_MANAGE
-            printf("get bat level:%d,Len:%d\r\n",p_ble_evt->evt.gattc_evt.params.hvx.data[0],
+        #ifdef DEBUG_BLE_MONITOR_TEMPLATE
+            printf("get monitor template result:%d,Len:%d\r\n",p_ble_evt->evt.gattc_evt.params.hvx.data[0],
                                                  p_ble_evt->evt.gattc_evt.params.hvx.len
                     );
         #endif
@@ -354,11 +287,11 @@ static void on_write_rsp (const ble_evt_t * p_ble_evt)
     p_response = &p_ble_evt->evt.gattc_evt.params.write_rsp;
 
     if(
-        (p_response->handle ==  g_DeviceInformation.devinfo_manage_service.nameModifyCharW.char_handle) && 
+        (p_response->handle ==  g_DeviceInformation.monitor_template_service.monitorTemplateSetCharW.char_handle) && 
         (p_response->len != 0) //response data
     )
     {
-//        #ifdef DEBUG_BLE_BONDING
+//        #ifdef DEBUG_BLE_MONITOR_TEMPLATE
 //            printf("[PWD]: PWD write result:Leng_%d,0x%X,0x%X ,0x%X ,0x%X \r\n ", 
 //                                    p_response->len, 
 //                                    p_response->data[0], 
@@ -381,10 +314,10 @@ static void on_read_rsp (const ble_evt_t * p_ble_evt)
     const ble_gattc_evt_read_rsp_t * p_response;
 
     p_response = &p_ble_evt->evt.gattc_evt.params.read_rsp;
-    if (p_response->handle == g_DeviceInformation.devinfo_manage_service.batLevelGetCharR.char_handle)
+    if (p_response->handle == g_DeviceInformation.monitor_template_service.monitorTemplateSetResultCharR.char_handle)
     {
 
-//        #ifdef DEBUG_BLE_BONDING
+//        #ifdef DEBUG_BLE_MONITOR_TEMPLATE
 //              printf("[PWD]: PWD Read result:Leng_%d,0x%X,0x%X,0x%X,0x%X\r\n", p_response->len, 
 //                        p_response->data[0], p_response->data[1], 
 //                        p_response->data[2], p_response->data[3]);
@@ -416,6 +349,7 @@ static void write_to_client(uint16_t conn_handle,uint16_t char_handle, uint8_t *
     tx_buffer_process();
 }
 
-/************************ (C) COPYRIGHT Chengdu CloudCare Healthcare Co., Ltd. *****END OF FILE****/
 
+
+/************************ (C) COPYRIGHT Chengdu CloudCare Healthcare Co., Ltd. *****END OF FILE****/
 

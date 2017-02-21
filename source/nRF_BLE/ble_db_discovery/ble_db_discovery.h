@@ -49,7 +49,7 @@
 #include "ble_gatt_db.h"
 
 
-#define BLE_DB_DISCOVERY_MAX_SRV          6  /**< Maximum number of services supported by this module. This also indicates the maximum number of users allowed to be registered to this module. (one user per service). */
+#define BLE_DB_DISCOVERY_MAX_SRV          10  /**< Maximum number of services supported by this module. This also indicates the maximum number of users allowed to be registered to this module. (one user per service). */
 
 
 /**@brief   Type of the DB Discovery event.

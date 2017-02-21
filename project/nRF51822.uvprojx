@@ -510,6 +510,11 @@
               <FileType>1</FileType>
               <FilePath>..\source\nRF_BLE\ble_central_services\ble_central_service_devinfo_manage.c</FilePath>
             </File>
+            <File>
+              <FileName>ble_central_service_monitor_template.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\nRF_BLE\ble_central_services\ble_central_service_monitor_template.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

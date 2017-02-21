@@ -198,7 +198,10 @@ void ble_bonding_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info, ble_db
     #ifdef DEBUG_BLE_BONDING
     else if(p_evt->evt_type == BLE_DB_DISCOVERY_SRV_NOT_FOUND)
     {
-        printf("Bond service not found\r\n");
+        if(p_evt->params.discovered_db.srv_uuid.uuid == BLE_UUID_PASSKEY_AUTH_SERVICE)
+        {
+            printf("Bond service not found\r\n");
+        }
     }   
     #endif
 }

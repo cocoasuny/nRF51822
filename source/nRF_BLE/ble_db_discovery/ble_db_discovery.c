@@ -224,6 +224,10 @@ static void on_srv_disc_completion(ble_db_discovery_t * p_db_discovery,
                                    uint16_t const       conn_handle)
 {
     p_db_discovery->discoveries_count++;
+    
+    #ifdef BLE_DEBUG_DISCOVERY
+        printf("\r\n[DB],dis cnt = %d, max = %d \r\n",p_db_discovery->discoveries_count,m_num_of_handlers_reg);
+    #endif
 
     // Check if more services need to be discovered.
     if (p_db_discovery->discoveries_count < m_num_of_handlers_reg)
@@ -274,6 +278,9 @@ static void on_srv_disc_completion(ble_db_discovery_t * p_db_discovery,
     }
     else
     {
+        #ifdef BLE_DEBUG_DISCOVERY
+            printf("No more service discovery is needed\r\n");
+        #endif
         // No more service discovery is needed.
         p_db_discovery->discovery_in_progress  = false;
         m_pending_user_evts[0].evt.evt_type    = BLE_DB_DISCOVERY_AVAILABLE;
@@ -577,7 +584,8 @@ static void on_primary_srv_discovery_rsp(ble_db_discovery_t * const    p_db_disc
     else
     {
         #ifdef BLE_DEBUG_DISCOVERY
-            printf("Service UUID 0x%x Not found\r\n", p_srv_being_discovered->srv_uuid.uuid);
+            printf("Service UUID 0x%x Not found:0x%x\r\n", p_srv_being_discovered->srv_uuid.uuid,
+                                                           p_ble_gattc_evt->gatt_status);
         #endif
         // Trigger Service Not Found event to the application.
         discovery_complete_evt_trigger(p_db_discovery,

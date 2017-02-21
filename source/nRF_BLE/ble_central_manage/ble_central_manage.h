@@ -39,16 +39,19 @@
 #define YWK_DEVICE_CONFIRM_UUID     0x2311      //云卫康设备认证服务UUID，在广播包中包含改服务UUID的即认为是云卫康设备
 
 /* service and character find complete management define(max 32 characters) */                                               
-#define YWK_CHARACTER_PWD_WRITE                 ((uint32_t)(1 << 0))
-#define YWK_CHARACTER_PWD_RESULT                ((uint32_t)(1 << 1))
-#define YWK_CHARACTER_SYC_TIME                  ((uint32_t)(1 << 2))
-#define YWK_CHARACTER_NAME_MODIFY               ((uint32_t)(1 << 3))
-#define YWK_CHARACTER_VERSION_GET               ((uint32_t)(1 << 4))
-#define YWK_CHARACTER_BAT_LEVEL_GET             ((uint32_t)(1 << 5))
+#define YWK_CHARACTER_PWD_WRITE                                             ((uint32_t)(1 << 0))
+#define YWK_CHARACTER_PWD_RESULT                                            ((uint32_t)(1 << 1))
+#define YWK_CHARACTER_SYC_TIME                                              ((uint32_t)(1 << 2))
+#define YWK_CHARACTER_NAME_MODIFY                                           ((uint32_t)(1 << 3))
+#define YWK_CHARACTER_VERSION_GET                                           ((uint32_t)(1 << 4))
+#define YWK_CHARACTER_BAT_LEVEL_GET                                         ((uint32_t)(1 << 5))
+#define YWK_CHARACTER_MONITOR_TEMPLATE_SET                                  ((uint32_t)(1 << 6))
+#define YWK_CHARACTER_MONITOR_TEMPLATE_RESULT                               ((uint32_t)(1 << 7))
 
 #define YWK_CHARACTER_NONE                      ((uint32_t)(0x0)) 
 #define YWK_CHARACTER_ALL                       (YWK_CHARACTER_PWD_WRITE | YWK_CHARACTER_PWD_RESULT | YWK_CHARACTER_SYC_TIME |  \
-                                                YWK_CHARACTER_NAME_MODIFY | YWK_CHARACTER_VERSION_GET | YWK_CHARACTER_BAT_LEVEL_GET \
+                                                YWK_CHARACTER_NAME_MODIFY | YWK_CHARACTER_VERSION_GET | YWK_CHARACTER_BAT_LEVEL_GET |\
+                                                YWK_CHARACTER_MONITOR_TEMPLATE_SET | YWK_CHARACTER_MONITOR_TEMPLATE_RESULT \
                                                 )
 
 
