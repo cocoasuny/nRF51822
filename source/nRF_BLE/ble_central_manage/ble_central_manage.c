@@ -359,6 +359,7 @@ static void reset_ble_central_all_service(void)
     reset_ble_central_bonding_service(&g_DeviceInformation.bonding_service);
     reset_ble_central_devinfo_manage_service(&g_DeviceInformation.devinfo_manage_service);
     reset_ble_central_monitor_template_service(&g_DeviceInformation.monitor_template_service);
+    reset_ble_central_sync_data_service(&g_DeviceInformation.sync_data_service);
 }
 /************************ (C) COPYRIGHT Chengdu CloudCare Healthcare Co., Ltd. *****END OF FILE****/
 

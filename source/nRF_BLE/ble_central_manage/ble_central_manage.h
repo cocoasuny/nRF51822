@@ -47,11 +47,15 @@
 #define YWK_CHARACTER_BAT_LEVEL_GET                                         ((uint32_t)(1 << 5))
 #define YWK_CHARACTER_MONITOR_TEMPLATE_SET                                  ((uint32_t)(1 << 6))
 #define YWK_CHARACTER_MONITOR_TEMPLATE_RESULT                               ((uint32_t)(1 << 7))
+#define YWK_CHARACTER_SYNC_DATA_SWITCH                                      ((uint32_t)(1 << 8))
+#define YWK_CHARACTER_SYNC_DATA                                             ((uint32_t)(1 << 9))
+#define YWK_CHARACTER_SYNC_DATA_DONE                                        ((uint32_t)(1 << 10))
 
 #define YWK_CHARACTER_NONE                      ((uint32_t)(0x0)) 
 #define YWK_CHARACTER_ALL                       (YWK_CHARACTER_PWD_WRITE | YWK_CHARACTER_PWD_RESULT | YWK_CHARACTER_SYC_TIME |  \
-                                                YWK_CHARACTER_NAME_MODIFY | YWK_CHARACTER_VERSION_GET | YWK_CHARACTER_BAT_LEVEL_GET |\
-                                                YWK_CHARACTER_MONITOR_TEMPLATE_SET | YWK_CHARACTER_MONITOR_TEMPLATE_RESULT \
+                                                YWK_CHARACTER_NAME_MODIFY | YWK_CHARACTER_VERSION_GET | YWK_CHARACTER_BAT_LEVEL_GET | \
+                                                YWK_CHARACTER_MONITOR_TEMPLATE_SET | YWK_CHARACTER_MONITOR_TEMPLATE_RESULT | \
+                                                YWK_CHARACTER_SYNC_DATA_SWITCH | YWK_CHARACTER_SYNC_DATA | YWK_CHARACTER_SYNC_DATA_DONE \
                                                 )
 
 

@@ -46,6 +46,7 @@ typedef struct
     bonding_service_t                   bonding_service;
     devinfo_manage_service_t            devinfo_manage_service;
     monitor_template_service_t          monitor_template_service;
+    sync_data_service_t                 sync_data_service;
 }DeviceInfomation_t;
 
 /*type struct define for ble scan list */

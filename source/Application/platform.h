@@ -28,6 +28,7 @@
 #define DEBUG_BLE_BONDING
 #define DEBUG_BLE_PEER_DEVINFO_MANAGE
 #define DEBUG_BLE_MONITOR_TEMPLATE
+#define DEBUG_BLE_SYNC_DATA
 
 /* shell debug switch --------------------------------------------------------*/
 #define SHELL_ENABLE

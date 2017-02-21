@@ -443,7 +443,7 @@ uint32_t softdevice_enable_get_default_config(uint8_t central_links_count,
                                               ble_enable_params_t * p_ble_enable_params)
 {
     memset(p_ble_enable_params, 0, sizeof(ble_enable_params_t));
-    p_ble_enable_params->common_enable_params.vs_uuid_count   = 2;
+    p_ble_enable_params->common_enable_params.vs_uuid_count   = 10;
     p_ble_enable_params->gatts_enable_params.attr_tab_size    = SOFTDEVICE_GATTS_ATTR_TAB_SIZE;
     p_ble_enable_params->gatts_enable_params.service_changed  = SOFTDEVICE_GATTS_SRV_CHANGED;
     p_ble_enable_params->gap_enable_params.periph_conn_count  = periph_links_count;
@@ -527,7 +527,7 @@ uint32_t softdevice_enable(ble_enable_params_t * p_ble_enable_params)
 #endif
 
     app_ram_base = ram_start;
-    NRF_LOG_INFO("sd_ble_enable: RAM START at 0x%x\r\n",
+    printf("sd_ble_enable: RAM START at 0x%x\r\n",
                     app_ram_base);
     err_code = sd_ble_enable(p_ble_enable_params, &app_ram_base);
 

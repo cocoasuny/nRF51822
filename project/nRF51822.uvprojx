@@ -297,8 +297,8 @@
               </OCR_RVCT8>
               <OCR_RVCT9>
                 <Type>0</Type>
-                <StartAddress>0x20002800</StartAddress>
-                <Size>0x5800</Size>
+                <StartAddress>0x20003000</StartAddress>
+                <Size>0x5000</Size>
               </OCR_RVCT9>
               <OCR_RVCT10>
                 <Type>0</Type>
@@ -514,6 +514,11 @@
               <FileName>ble_central_service_monitor_template.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\nRF_BLE\ble_central_services\ble_central_service_monitor_template.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_central_service_sync_data.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\nRF_BLE\ble_central_services\ble_central_service_sync_data.c</FilePath>
             </File>
           </Files>
         </Group>

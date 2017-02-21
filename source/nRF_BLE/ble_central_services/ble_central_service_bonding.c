@@ -73,12 +73,14 @@ static void write_to_client(DeviceInfomation_t *p_dev, uint8_t *pData,uint8_t le
 uint32_t ble_central_service_bonding_init(bonding_service_t *p_bondinf_service)
 {
     ble_uuid_t          bas_uuid;
+    uint32_t            err_code = NRF_ERROR_NULL;
     
     /* Reset the bonding service pwd write and result char */
     reset_ble_central_bonding_service(p_bondinf_service);
     
-    sd_ble_uuid_vs_add (&PWD_UUID_128B, &bas_uuid.type);
+    err_code = sd_ble_uuid_vs_add (&PWD_UUID_128B, &bas_uuid.type);
     bas_uuid.uuid = BLE_UUID_PASSKEY_AUTH_SERVICE;
+    APP_ERROR_CHECK(err_code);
 
     return ble_db_discovery_evt_register (&bas_uuid);    
 }

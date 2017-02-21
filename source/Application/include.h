@@ -52,6 +52,7 @@
 #include "ble_central_service_bonding.h"
 #include "ble_central_service_devinfo_manage.h"
 #include "ble_central_service_monitor_template.h"
+#include "ble_central_service_sync_data.h"
 
 
 

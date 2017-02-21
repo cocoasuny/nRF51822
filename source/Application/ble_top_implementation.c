@@ -395,6 +395,7 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
             ble_bonding_ble_evt_handler(p_ble_evt);
             ble_devinfo_manage_ble_evt_handler(p_ble_evt);
             ble_monitor_template_ble_evt_handler(p_ble_evt);
+            ble_sync_data_ble_evt_handler(p_ble_evt);
         }
 	}  
 }
@@ -493,6 +494,7 @@ static void db_disc_handler(ble_db_discovery_evt_t * p_evt)
     ble_bonding_db_discovery_evt_handler(&g_DeviceInformation, p_evt);
     ble_devinfo_manage_db_discovery_evt_handler(&g_DeviceInformation, p_evt);
     ble_monitor_template_db_discovery_evt_handler(&g_DeviceInformation, p_evt);
+    ble_sync_data_db_discovery_evt_handler(&g_DeviceInformation, p_evt);
 }
 
 /**
@@ -575,7 +577,10 @@ static uint32_t ble_central_service_init(void)
     APP_ERROR_CHECK(ret);    
     
     ret = ble_central_service_devinfo_manage_init(&g_DeviceInformation.devinfo_manage_service);
-    APP_ERROR_CHECK(ret);   
+    APP_ERROR_CHECK(ret); 
+
+    ret = ble_central_service_sync_data_init(&g_DeviceInformation.sync_data_service);
+    APP_ERROR_CHECK(ret);
     
     return ret;
 }

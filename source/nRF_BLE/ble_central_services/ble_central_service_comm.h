@@ -75,6 +75,16 @@ typedef struct
     char_db_t           monitorTemplateSetResultCharR;
 }monitor_template_service_t;
 
+/**
+ * @brief Structure for data sync service
+ */
+typedef struct
+{
+    char_db_t           syncDataSwitchCharW;
+    char_db_t           syncDataCharR;
+    char_db_t           syncDataDoneCharW;
+}sync_data_service_t;
+
 
 #endif /* __BLE_CENTRAL_SERVICE_COMM_H_ */
 

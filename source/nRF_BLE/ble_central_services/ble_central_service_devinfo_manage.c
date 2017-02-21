@@ -70,12 +70,14 @@ static void write_to_client(uint16_t conn_handle,uint16_t char_handle, uint8_t *
 uint32_t ble_central_service_devinfo_manage_init(devinfo_manage_service_t *p_devinfo_manage_service)
 {
     ble_uuid_t          bas_uuid;
+    uint32_t            err_code = NRF_ERROR_NULL;
     
     /* Reset the all the char of device information manage service */
     reset_ble_central_devinfo_manage_service(p_devinfo_manage_service);
     
-    sd_ble_uuid_vs_add (&DEVINFO_MANAGE_UUID_128B, &bas_uuid.type);
+    err_code = sd_ble_uuid_vs_add (&DEVINFO_MANAGE_UUID_128B, &bas_uuid.type);
     bas_uuid.uuid = BLE_UUID_DEVICE_INFORMATION_MANAGE_SERVICE;
+    APP_ERROR_CHECK(err_code);
 
     return ble_db_discovery_evt_register(&bas_uuid);    
 }

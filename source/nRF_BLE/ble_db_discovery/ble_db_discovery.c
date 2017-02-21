@@ -225,9 +225,9 @@ static void on_srv_disc_completion(ble_db_discovery_t * p_db_discovery,
 {
     p_db_discovery->discoveries_count++;
     
-    #ifdef BLE_DEBUG_DISCOVERY
-        printf("\r\n[DB],dis cnt = %d, max = %d \r\n",p_db_discovery->discoveries_count,m_num_of_handlers_reg);
-    #endif
+//    #ifdef BLE_DEBUG_DISCOVERY
+//        printf("\r\n[DB],dis cnt = %d, max = %d \r\n",p_db_discovery->discoveries_count,m_num_of_handlers_reg);
+//    #endif
 
     // Check if more services need to be discovered.
     if (p_db_discovery->discoveries_count < m_num_of_handlers_reg)
@@ -278,9 +278,9 @@ static void on_srv_disc_completion(ble_db_discovery_t * p_db_discovery,
     }
     else
     {
-        #ifdef BLE_DEBUG_DISCOVERY
-            printf("No more service discovery is needed\r\n");
-        #endif
+//        #ifdef BLE_DEBUG_DISCOVERY
+//            printf("No more service discovery is needed\r\n");
+//        #endif
         // No more service discovery is needed.
         p_db_discovery->discovery_in_progress  = false;
         m_pending_user_evts[0].evt.evt_type    = BLE_DB_DISCOVERY_AVAILABLE;
