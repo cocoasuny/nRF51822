@@ -240,7 +240,7 @@ static void tx_buffer_process(void)
         if (err_code == NRF_SUCCESS)
         {
             #ifdef DEBUG_BLE_MONITOR_TEMPLATE
-                printf("devinfo manage SD Read/Write API returns Success..\r\n");
+                printf("Monitor Template SD Read/Write API returns Success..\r\n");
             #endif
             m_tx_index++;
             m_tx_index &= TX_BUFFER_MASK;
@@ -248,7 +248,7 @@ static void tx_buffer_process(void)
         else
         {
             #ifdef DEBUG_BLE_MONITOR_TEMPLATE
-                printf("devinfo manage SD Read/Write error = 0x%x\r\n", err_code);
+                printf("Monitor Template SD Read/Write error = 0x%x\r\n", err_code);
             #endif
         }
     }
