@@ -66,13 +66,25 @@ typedef enum
     EVENT_APP_BLE_STOP_SCAN,
     EVENT_APP_BLE_CONNECT,
     EVENT_APP_BLE_DISCONNECT,
-    EVENT_APP_BLE_PASSKEY_WRITE
+    EVENT_APP_BLE_PASSKEY_WRITE,
+    EVENT_APP_BLE_SYNC_TIME,
+    EVENT_APP_BLE_SERVICE_CHAR_FIND_COMPLATE
 }BLE_EVENT_ID_T;
 
 typedef struct
 {
     BLE_EVENT_ID_T      eventID;
 }BLE_MSG_T;
+
+/* type struct define for connect and bonding status */
+typedef enum
+{
+    STATUS_NONE = 0,
+    STATUS_WRITE_PIN,
+    STATUS_WRITE_TIME,
+    STATUS_WRITE_MONITOR_TEMPLATE,
+    STATUS_START_SYNC_DATA
+}CONNECT_BONDING_STATUS_T;
 
 
 /* Queue size define */
@@ -83,7 +95,7 @@ typedef struct
 extern DeviceInfomation_t  			g_DeviceInformation;                //硬件设备信息
 extern BLE_SCAN_LIST_T              gScanList[];  
 extern ble_db_discovery_t           g_ble_db_discovery[]; /**< list of DB structures used by the database discovery module. */
-
+extern CONNECT_BONDING_STATUS_T     g_connect_bonding_status;
 
 #endif // __MAIN__
 

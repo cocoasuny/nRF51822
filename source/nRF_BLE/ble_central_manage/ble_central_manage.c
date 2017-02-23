@@ -179,6 +179,9 @@ void on_ble_central_evt(const ble_evt_t * const p_ble_evt)
             g_DeviceInformation.conn_handle = BLE_CONN_HANDLE_INVALID;
             g_DeviceInformation.char_find_manage = YWK_CHARACTER_NONE;
             
+            /* reset the g_connect_bonding_status to default status */
+            g_connect_bonding_status = STATUS_NONE;
+            
             /* Reset all the service and char */
             reset_ble_central_all_service();
             

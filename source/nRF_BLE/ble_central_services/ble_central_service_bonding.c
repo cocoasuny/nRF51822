@@ -188,12 +188,7 @@ void ble_bonding_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info, ble_db
                 cccd_configure (
                                 p_evt->conn_handle,
                                 p_dev_info->bonding_service.pwdResultCharR.cccd_handle,
-                                true);
-                
-                /* for test */
-                BLE_MSG_T               bleEventMsgValue;
-                bleEventMsgValue.eventID = EVENT_APP_BLE_PASSKEY_WRITE;
-                app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);            
+                                true);           
             }            
         }
     }
@@ -324,6 +319,8 @@ static void on_hvx (const ble_evt_t * p_ble_evt)
                 printf("[PWD]: bonding Ok \r\n");
             #endif
             
+            /* change to next connect and bonding status: STATUS_WRITE_TIME */
+            g_connect_bonding_status = STATUS_WRITE_TIME;            
         }
         else
         {

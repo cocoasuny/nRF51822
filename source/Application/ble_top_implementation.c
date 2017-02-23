@@ -32,8 +32,9 @@
 
 
 /* private variables define */
-APP_TIMER_DEF(m_ble_scanCTL_timer_id);                  /**<ble scan control timer. */
-APP_TIMER_DEF(m_ble_char_find_manage_timer_id);         /**<timer to poll the status of character find manage. */
+APP_TIMER_DEF(m_ble_scanCTL_timer_id);                              /**<ble scan control timer. */
+APP_TIMER_DEF(m_ble_char_find_manage_timer_id);                     /**<timer to poll the status of character find manage. */
+APP_TIMER_DEF(m_ble_connect_bonding_status_poll_timer_id);          /**<timer to poll the status of connect and bonding. */
 
 
 /* private function declare */
@@ -53,6 +54,7 @@ static void services_init(void);
 static uint32_t ble_central_service_init(void);
 static void vTimerStopBleScanCB(void * p_context);
 static void vTimerCharFindStatusPollCB(void *p_context);
+static void vTimerConnectBondingStatusPollCB(void *p_context);
 static void reset_scan_list(void);
 static void reset_target_Connnect_DevInfo(void);
 static ret_code_t ble_central_connect_target(ble_gap_addr_t *peerAddr);
@@ -194,6 +196,24 @@ void ble_task_handler(void *p_event_data,uint16_t event_size)
             ble_central_passkey_write(&g_DeviceInformation);
         }
         break;
+        case EVENT_APP_BLE_SYNC_TIME:
+        {
+            time_t tim =  1487838000;
+            ble_central_synctime_write(&g_DeviceInformation,tim);
+        }
+        break;
+        case EVENT_APP_BLE_SERVICE_CHAR_FIND_COMPLATE:
+        {
+            printf("EVENT_APP_BLE_SERVICE_CHAR_FIND_COMPLATE\r\n");
+            
+            /* set the g_connect_bonding_status to STATUS_WRITE_PIN */
+            g_connect_bonding_status = STATUS_WRITE_PIN;
+            
+            /* start the timer to poll the status of connect and bonding */
+            stop_connect_bonding_status_polling_timer_timer(&g_DeviceInformation);
+            start_connect_bonding_status_polling_timer_timer(&g_DeviceInformation);
+        }
+        break;
         default:break;
     }
 }
@@ -205,7 +225,10 @@ void ble_task_handler(void *p_event_data,uint16_t event_size)
   */
 void ble_scan_control_timer_init(void)
 {
-    app_timer_create(&m_ble_scanCTL_timer_id,APP_TIMER_MODE_SINGLE_SHOT,vTimerStopBleScanCB);       
+    ret_code_t  err_code = NRF_ERROR_NULL;
+    
+    err_code = app_timer_create(&m_ble_scanCTL_timer_id,APP_TIMER_MODE_SINGLE_SHOT,vTimerStopBleScanCB);
+    APP_ERROR_CHECK(err_code);    
 }
 /**
   * @brief  start the time of polling the status of character find management
@@ -234,6 +257,44 @@ void stop_character_find_status_manage_timer(DeviceInfomation_t *p_dev)
     APP_ERROR_CHECK(err_code);
 }
 
+/**
+  * @brief  allocate an app timer to poll the status of connect and bonding progress
+  * @param  None
+  * @retval None
+  */
+void ble_connect_bonding_status_polling_timer_init(void)
+{
+    ret_code_t  err_code = NRF_ERROR_NULL;
+    
+    err_code = app_timer_create(&m_ble_connect_bonding_status_poll_timer_id,APP_TIMER_MODE_REPEATED,vTimerConnectBondingStatusPollCB); 
+    APP_ERROR_CHECK(err_code);    
+}
+/**
+  * @brief  start the time of polling the status of connect and bonding
+  * @param  *p_dev
+  * @retval None
+  */
+void start_connect_bonding_status_polling_timer_timer(DeviceInfomation_t *p_dev)
+{
+    ret_code_t  err_code = NRF_ERROR_NULL;
+     
+    /* start the timer of polling the status of character find management */
+    err_code = app_timer_start(m_ble_connect_bonding_status_poll_timer_id,CONNECT_BONDING_STATUS_POLL_TIME,p_dev);
+    APP_ERROR_CHECK(err_code); 
+}
+/**
+  * @brief  stop the time of polling the status of connect and bonding
+  * @param  *p_dev
+  * @retval None
+  */
+void stop_connect_bonding_status_polling_timer_timer(DeviceInfomation_t *p_dev)
+{
+    ret_code_t  err_code = NRF_ERROR_NULL;
+    
+    /* stop the timer of character find status polling */
+    err_code = app_timer_stop(m_ble_connect_bonding_status_poll_timer_id);
+    APP_ERROR_CHECK(err_code);
+}
 /**@brief Function for start ble scanning.
  */
 static ret_code_t start_ble_scan(void)
@@ -608,10 +669,11 @@ static void vTimerStopBleScanCB(void * p_context)
   */
 static void vTimerCharFindStatusPollCB(void *p_context)
 {
-    ret_code_t  err_code = NRF_ERROR_NULL;
-    DeviceInfomation_t  *dev = (DeviceInfomation_t *)p_context;
+    ret_code_t              err_code = NRF_ERROR_NULL;
+    DeviceInfomation_t      *dev = (DeviceInfomation_t *)p_context;
+    BLE_MSG_T               bleEventMsgValue;
     dev = dev;
-    
+        
     if(g_DeviceInformation.char_find_manage == YWK_CHARACTER_ALL)  //所有的character已发现完成
     {
         /* stop the timer of character find status polling */
@@ -621,8 +683,59 @@ static void vTimerCharFindStatusPollCB(void *p_context)
         #ifdef DEBUG_BLE_CONNECT
             printf("YWK character find complete:0x%x\r\n",g_DeviceInformation.char_find_manage);
         #endif
+ 
+        bleEventMsgValue.eventID = EVENT_APP_BLE_SERVICE_CHAR_FIND_COMPLATE;
         
+        err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
+        APP_ERROR_CHECK(err_code);                 
+    }
+}
+
+/**
+  * @brief  vTimerConnectBondingStatusPollCB
+  * @note   polling the status of connect and bonding status
+  * @param  void * p_context
+  * @retval None
+  */
+static void vTimerConnectBondingStatusPollCB(void *p_context)
+{
+    BLE_MSG_T               bleEventMsgValue;
+    uint32_t                err_code = NRF_ERROR_NULL;
         
+    /* polling the status of connect and bonding progress */
+    switch(g_connect_bonding_status)
+    {
+        case STATUS_WRITE_PIN:
+        {
+            bleEventMsgValue.eventID = EVENT_APP_BLE_PASSKEY_WRITE;
+            
+            err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
+            APP_ERROR_CHECK(err_code); 
+        }
+        break;
+        case STATUS_WRITE_TIME:
+        {
+            printf("**************here********************\r\n");
+            bleEventMsgValue.eventID = EVENT_APP_BLE_SYNC_TIME;
+            
+            err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
+            APP_ERROR_CHECK(err_code); 
+            
+            /* for test */
+            stop_connect_bonding_status_polling_timer_timer(&g_DeviceInformation);        
+        }
+        break;
+        case STATUS_WRITE_MONITOR_TEMPLATE:
+        {
+        
+        }
+        break;
+        case STATUS_START_SYNC_DATA:
+        {
+        
+        }
+        break;
+        default:break;            
     }
 }
 

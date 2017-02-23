@@ -67,6 +67,9 @@ static void timers_init(TIME_MODE_T mode)
     
     /* 分配timer控制扫描时间 */
     ble_scan_control_timer_init();
+    
+    /* 分配timer用于查询绑定连接过程状态 */
+    ble_connect_bonding_status_polling_timer_init();
 }
 
 

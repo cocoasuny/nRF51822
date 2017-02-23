@@ -57,8 +57,9 @@
 #define LED_4          24
 
 /* 停止扫描定时器定义 */
-#define STOP_SCAN_TIME                  APP_TIMER_TICKS(3000, APP_TIMER_PRESCALER)  //扫描5s后停止扫描
-#define FIND_CHAR_STATUS_POLL_TIME      APP_TIMER_TICKS(100, APP_TIMER_PRESCALER)   //character发现状态查询时间
+#define STOP_SCAN_TIME                          APP_TIMER_TICKS(3000, APP_TIMER_PRESCALER)  //扫描5s后停止扫描
+#define FIND_CHAR_STATUS_POLL_TIME              APP_TIMER_TICKS(100, APP_TIMER_PRESCALER)   //character发现状态查询时间
+#define CONNECT_BONDING_STATUS_POLL_TIME        APP_TIMER_TICKS(100, APP_TIMER_PRESCALER)   //connect and bonding状态查询时间
 #define DEFAULT_REF_RSSI    -70  //默认参考蓝牙信号强度值，大于改信号质量的设备才进入扫描队列
 #define MAX_SCAN_LIST_NUM   10   //最大支持扫描列表数量
 #define SN_NUM_LEN          4    //序列号长度：4字节

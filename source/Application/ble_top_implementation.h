@@ -38,9 +38,11 @@
 void ble_init(void);
 void ble_task_handler(void *p_event_data,uint16_t event_size);
 void ble_scan_control_timer_init(void);
+void ble_connect_bonding_status_polling_timer_init(void);
 void start_character_find_status_manage_timer(DeviceInfomation_t *p_dev);
 void stop_character_find_status_manage_timer(DeviceInfomation_t *p_dev);
-
+void start_connect_bonding_status_polling_timer_timer(DeviceInfomation_t *p_dev);
+void stop_connect_bonding_status_polling_timer_timer(DeviceInfomation_t *p_dev);                                 
 
 
 
