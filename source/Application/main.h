@@ -28,6 +28,13 @@ typedef struct
   uint16_t data_len; /**< Length of data. */
 } data_t;
 
+/* type struct define for monitor template */
+typedef struct
+{
+    uint8_t len;
+    uint8_t *p_contex;
+}MONITOR_TEMPLATE_T;
+
 /* type struct define */
 typedef struct
 {
@@ -47,6 +54,8 @@ typedef struct
     devinfo_manage_service_t            devinfo_manage_service;
     monitor_template_service_t          monitor_template_service;
     sync_data_service_t                 sync_data_service;
+    bool                                isNRFBusy;
+    MONITOR_TEMPLATE_T                  monitor_template;
 }DeviceInfomation_t;
 
 /*type struct define for ble scan list */
@@ -68,6 +77,7 @@ typedef enum
     EVENT_APP_BLE_DISCONNECT,
     EVENT_APP_BLE_PASSKEY_WRITE,
     EVENT_APP_BLE_SYNC_TIME,
+    EVENT_APP_BLE_MONITOR_TEMPLATE_WRITE,
     EVENT_APP_BLE_SERVICE_CHAR_FIND_COMPLATE
 }BLE_EVENT_ID_T;
 
@@ -81,9 +91,14 @@ typedef enum
 {
     STATUS_NONE = 0,
     STATUS_WRITE_PIN,
+    STATUS_WRITE_PIN_WAIT,
     STATUS_WRITE_TIME,
+    STATUS_WRITE_TIME_WAIT,
     STATUS_WRITE_MONITOR_TEMPLATE,
-    STATUS_START_SYNC_DATA
+    STATUS_WRITE_MONITOR_TEMPLATE_WAIT,
+    STATUS_START_SYNC_DATA,
+    STATUS_START_SYNC_DATA_WAIT,
+    STATUS_CONNECT_BONDING_COMPLATE
 }CONNECT_BONDING_STATUS_T;
 
 

@@ -188,7 +188,7 @@ void ble_bonding_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info, ble_db
                 cccd_configure (
                                 p_evt->conn_handle,
                                 p_dev_info->bonding_service.pwdResultCharR.cccd_handle,
-                                true);           
+                                true);               
             }            
         }
     }
@@ -287,6 +287,18 @@ static void tx_buffer_process(void)
             #endif
             m_tx_index++;
             m_tx_index &= TX_BUFFER_MASK;
+            
+            if(m_tx_buffer[m_tx_index].conn_handle == g_DeviceInformation.conn_handle)
+            {
+                g_DeviceInformation.isNRFBusy = false;
+            }             
+        }
+        else if(err_code == NRF_ERROR_BUSY)
+        {
+            if(m_tx_buffer[m_tx_index].conn_handle == g_DeviceInformation.conn_handle)
+            {
+                g_DeviceInformation.isNRFBusy = true;
+            }         
         }
         else
         {
@@ -317,10 +329,7 @@ static void on_hvx (const ble_evt_t * p_ble_evt)
         {
             #ifdef DEBUG_BLE_BONDING
                 printf("[PWD]: bonding Ok \r\n");
-            #endif
-            
-            /* change to next connect and bonding status: STATUS_WRITE_TIME */
-            g_connect_bonding_status = STATUS_WRITE_TIME;            
+            #endif            
         }
         else
         {

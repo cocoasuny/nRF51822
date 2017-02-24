@@ -148,7 +148,7 @@ void ble_sync_data_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info, ble_
                 cccd_configure (
                                 p_evt->conn_handle,
                                 p_dev_info->sync_data_service.syncDataCharR.cccd_handle,
-                                true);                
+                                true);  
                 
                 #ifdef DEBUG_BLE_SYNC_DATA
                     printf("\t\tSync Data channel Char find OK\r\n");
@@ -266,6 +266,18 @@ static void tx_buffer_process(void)
             #endif
             m_tx_index++;
             m_tx_index &= TX_BUFFER_MASK;
+            
+            if(m_tx_buffer[m_tx_index].conn_handle == g_DeviceInformation.conn_handle)
+            {
+                g_DeviceInformation.isNRFBusy = false;
+            }            
+        }
+        else if(err_code == NRF_ERROR_BUSY)
+        {
+            if(m_tx_buffer[m_tx_index].conn_handle == g_DeviceInformation.conn_handle)
+            {
+                g_DeviceInformation.isNRFBusy = true;
+            }
         }
         else
         {

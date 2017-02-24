@@ -24,6 +24,7 @@
 
 /* function declare */
 uint32_t ble_central_service_monitor_template_init(monitor_template_service_t *p_monitor_template_service);
+void ble_central_monitor_template_write(DeviceInfomation_t *p_dev);
 void reset_ble_central_monitor_template_service(monitor_template_service_t *p_monitor_template_service);
 void ble_monitor_template_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info, ble_db_discovery_evt_t * p_evt);
 void ble_monitor_template_ble_evt_handler(ble_evt_t * p_ble_evt);

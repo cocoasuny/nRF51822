@@ -69,6 +69,7 @@ void ble_init(void)
 {	
     g_DeviceInformation.conn_handle = BLE_CONN_HANDLE_INVALID;
     g_DeviceInformation.char_find_manage = YWK_CHARACTER_NONE;
+    g_DeviceInformation.isNRFBusy = false;
        
 	/* ble stack init */
 	ble_stack_init();	
@@ -193,15 +194,23 @@ void ble_task_handler(void *p_event_data,uint16_t event_size)
         break;
         case EVENT_APP_BLE_PASSKEY_WRITE:
         {
+            /* 写PIN码 */
             ble_central_passkey_write(&g_DeviceInformation);
         }
         break;
         case EVENT_APP_BLE_SYNC_TIME:
         {
+            /* 同步peer设备时间 */
             time_t tim =  1487838000;
             ble_central_synctime_write(&g_DeviceInformation,tim);
         }
         break;
+        case EVENT_APP_BLE_MONITOR_TEMPLATE_WRITE:
+        {
+            /* 设置监护方案 */            
+            ble_central_monitor_template_write(&g_DeviceInformation);
+        }
+        break;        
         case EVENT_APP_BLE_SERVICE_CHAR_FIND_COMPLATE:
         {
             printf("EVENT_APP_BLE_SERVICE_CHAR_FIND_COMPLATE\r\n");
@@ -701,41 +710,52 @@ static void vTimerConnectBondingStatusPollCB(void *p_context)
 {
     BLE_MSG_T               bleEventMsgValue;
     uint32_t                err_code = NRF_ERROR_NULL;
-        
-    /* polling the status of connect and bonding progress */
-    switch(g_connect_bonding_status)
-    {
-        case STATUS_WRITE_PIN:
+    
+    if(g_DeviceInformation.isNRFBusy == false)
+    {        
+        /* polling the status of connect and bonding progress */
+        switch(g_connect_bonding_status)
         {
-            bleEventMsgValue.eventID = EVENT_APP_BLE_PASSKEY_WRITE;
-            
-            err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
-            APP_ERROR_CHECK(err_code); 
+            case STATUS_WRITE_PIN:
+            {
+                bleEventMsgValue.eventID = EVENT_APP_BLE_PASSKEY_WRITE;
+                
+                err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
+                APP_ERROR_CHECK(err_code);
+                
+                g_connect_bonding_status = STATUS_WRITE_TIME;
+            }
+            break;
+            case STATUS_WRITE_TIME:
+            {
+                bleEventMsgValue.eventID = EVENT_APP_BLE_SYNC_TIME;
+                
+                err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
+                APP_ERROR_CHECK(err_code); 
+                
+                g_connect_bonding_status = STATUS_WRITE_MONITOR_TEMPLATE;      
+            }
+            break;
+            case STATUS_WRITE_MONITOR_TEMPLATE:
+            {
+                bleEventMsgValue.eventID = EVENT_APP_BLE_MONITOR_TEMPLATE_WRITE;
+                
+                err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
+                APP_ERROR_CHECK(err_code); 
+                
+                g_connect_bonding_status = STATUS_START_SYNC_DATA;
+            }
+            break;
+            case STATUS_START_SYNC_DATA:
+            {
+                g_connect_bonding_status = STATUS_CONNECT_BONDING_COMPLATE;
+                
+                /* stop the time when connect and bonding progress complate */
+                stop_connect_bonding_status_polling_timer_timer(&g_DeviceInformation); 
+            }
+            break;
+            default:break;            
         }
-        break;
-        case STATUS_WRITE_TIME:
-        {
-            printf("**************here********************\r\n");
-            bleEventMsgValue.eventID = EVENT_APP_BLE_SYNC_TIME;
-            
-            err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
-            APP_ERROR_CHECK(err_code); 
-            
-            /* for test */
-            stop_connect_bonding_status_polling_timer_timer(&g_DeviceInformation);        
-        }
-        break;
-        case STATUS_WRITE_MONITOR_TEMPLATE:
-        {
-        
-        }
-        break;
-        case STATUS_START_SYNC_DATA:
-        {
-        
-        }
-        break;
-        default:break;            
     }
 }
 

@@ -190,6 +190,7 @@ void ble_devinfo_manage_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info,
                                 p_evt->conn_handle,
                                 p_dev_info->devinfo_manage_service.versionGetCharR.cccd_handle,
                                 true); 
+
                 #ifdef DEBUG_BLE_PEER_DEVINFO_MANAGE
                     printf("\t\tGet version Char find OK\r\n");
                 #endif                 
@@ -209,6 +210,7 @@ void ble_devinfo_manage_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info,
                                 p_evt->conn_handle,
                                 p_dev_info->devinfo_manage_service.batLevelGetCharR.cccd_handle,
                                 true); 
+
                 #ifdef DEBUG_BLE_PEER_DEVINFO_MANAGE
                     printf("\t\tGet batLevel Char find OK\r\n");
                 #endif                 
@@ -311,6 +313,18 @@ static void tx_buffer_process(void)
             #endif
             m_tx_index++;
             m_tx_index &= TX_BUFFER_MASK;
+            
+            if(m_tx_buffer[m_tx_index].conn_handle == g_DeviceInformation.conn_handle)
+            {
+                g_DeviceInformation.isNRFBusy = false;
+            }             
+        }
+        else if(err_code == NRF_ERROR_BUSY)
+        {
+            if(m_tx_buffer[m_tx_index].conn_handle == g_DeviceInformation.conn_handle)
+            {
+                g_DeviceInformation.isNRFBusy = true;
+            }         
         }
         else
         {

@@ -69,11 +69,30 @@ uint32_t ble_central_service_monitor_template_init(monitor_template_service_t *p
     /* Reset the all the char of monitor template service */
     reset_ble_central_monitor_template_service(p_monitor_template_service);
     
-    err_code = sd_ble_uuid_vs_add (&MONITOR_TEMPLATE_UUID_128B, &bas_uuid.type);
+    err_code = sd_ble_uuid_vs_add(&MONITOR_TEMPLATE_UUID_128B, &bas_uuid.type);
     bas_uuid.uuid = BLE_UUID_MONITOR_TEMPLATE_SERVICE;    
     APP_ERROR_CHECK(err_code);
 
     return ble_db_discovery_evt_register(&bas_uuid);    
+}
+
+/**
+  * @brief  ble central device write monitor template to the cleint
+  * @param  *p_dev
+  * @retval None
+  */
+void ble_central_monitor_template_write(DeviceInfomation_t *p_dev)
+{
+    uint8_t i=0;
+    printf("\r\nReceive MonitorTempalte:%d\r\n",g_DeviceInformation.monitor_template.len);
+			for(i=0;i<p_dev->monitor_template.len;i++)
+			{
+				printf("%c",p_dev->monitor_template.p_contex[i]);
+			}
+            printf("\r\n");
+    
+    write_to_client(p_dev->conn_handle,p_dev->monitor_template_service.monitorTemplateSetCharW.char_handle,
+                    p_dev->monitor_template.p_contex,p_dev->monitor_template.len);
 }
 
 /**
@@ -145,7 +164,7 @@ void ble_monitor_template_db_discovery_evt_handler(DeviceInfomation_t *p_dev_inf
                 cccd_configure (
                                 p_evt->conn_handle,
                                 p_dev_info->monitor_template_service.monitorTemplateSetResultCharR.cccd_handle,
-                                true);                
+                                true);               
             }                       
         }
     }
@@ -244,6 +263,18 @@ static void tx_buffer_process(void)
             #endif
             m_tx_index++;
             m_tx_index &= TX_BUFFER_MASK;
+            
+            if(m_tx_buffer[m_tx_index].conn_handle == g_DeviceInformation.conn_handle)
+            {
+                g_DeviceInformation.isNRFBusy = false;
+            }             
+        }
+        else if(err_code == NRF_ERROR_BUSY)
+        {
+            if(m_tx_buffer[m_tx_index].conn_handle == g_DeviceInformation.conn_handle)
+            {
+                g_DeviceInformation.isNRFBusy = true;
+            }        
         }
         else
         {
