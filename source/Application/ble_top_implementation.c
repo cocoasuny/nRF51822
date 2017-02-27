@@ -207,6 +207,10 @@ void ble_task_handler(void *p_event_data,uint16_t event_size)
         break;
         case EVENT_APP_BLE_MONITOR_TEMPLATE_WRITE:
         {
+            /* test */
+            g_DeviceInformation.monitor_template.len = 53;
+            g_DeviceInformation.monitor_template.p_contex = "#1|09:00-15:00|1111111|0|111|000|0|0|1|0|16|3600|0|0#";
+            
             /* 设置监护方案 */            
             ble_central_monitor_template_write(&g_DeviceInformation);
         }

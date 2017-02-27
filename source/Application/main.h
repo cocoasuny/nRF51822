@@ -31,7 +31,7 @@ typedef struct
 /* type struct define for monitor template */
 typedef struct
 {
-    uint8_t len;
+    uint16_t len;
     uint8_t *p_contex;
 }MONITOR_TEMPLATE_T;
 

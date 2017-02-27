@@ -63,6 +63,7 @@
 #define DEFAULT_REF_RSSI    -70  //默认参考蓝牙信号强度值，大于改信号质量的设备才进入扫描队列
 #define MAX_SCAN_LIST_NUM   10   //最大支持扫描列表数量
 #define SN_NUM_LEN          4    //序列号长度：4字节
+#define MONITOR_TEMPLATE_DATA_MAX_LEN 		80  //监护方案最大长度
 
 /*  Define the max event size and event queue size      */
 #define SCHED_MAX_EVENT_DATA_SIZE           50
