@@ -345,17 +345,38 @@ static void tx_buffer_process(void)
  */
 static void on_hvx (const ble_evt_t * p_ble_evt)
 {    
+    APP_DEVICE_MANAGE_MSG_T     appDeviceManageEventMsgValue;
+    uint32_t                    err_code = NRF_ERROR_NULL;
+
+    
     // Check if this notification is a battery level notification.
-    if(p_ble_evt->evt.gattc_evt.params.hvx.handle
-            == g_DeviceInformation.devinfo_manage_service.batLevelGetCharR.char_handle)
+    if((p_ble_evt->evt.gattc_evt.params.hvx.handle
+            == g_DeviceInformation.devinfo_manage_service.batLevelGetCharR.char_handle) &&
+        (p_ble_evt->evt.gap_evt.conn_handle == g_DeviceInformation.conn_handle)  //处于连接状态
+    )
+        
     {        
         /*  get the battery level result       */
         #ifdef DEBUG_BLE_PEER_DEVINFO_MANAGE
-            printf("get bat level:%d,Len:%d\r\n",p_ble_evt->evt.gattc_evt.params.hvx.data[0],
-                                                 p_ble_evt->evt.gattc_evt.params.hvx.len
-                    );
+//            printf("get bat level:%d,Len:%d\r\n",p_ble_evt->evt.gattc_evt.params.hvx.data[0],
+//                                                 p_ble_evt->evt.gattc_evt.params.hvx.len
+//                    );
         #endif
         
+        if(p_ble_evt->evt.gattc_evt.params.hvx.len < VERSION_INFO_BUF_LEN)
+        {
+            memcpy(g_buf_bat_version,&p_ble_evt->evt.gattc_evt.params.hvx.data,p_ble_evt->evt.gattc_evt.params.hvx.len);
+            
+            /* 发送电量及HW SW版本解析事件 */
+            appDeviceManageEventMsgValue.eventID = EVENT_APP_DEVICE_MANAGE_GET_BATLEVEL_VERSION;
+            appDeviceManageEventMsgValue.len = p_ble_evt->evt.gattc_evt.params.hvx.len;
+            appDeviceManageEventMsgValue.p_data = g_buf_bat_version;
+            appDeviceManageEventMsgValue.conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
+                                   
+            err_code = app_sched_event_put(&appDeviceManageEventMsgValue,sizeof(appDeviceManageEventMsgValue),
+                                            app_device_manage_task_handler);
+            APP_ERROR_CHECK(err_code);
+        }            
     }
 }
 

@@ -39,11 +39,15 @@ typedef struct
 typedef struct
 {
 	uint8_t                             DevSupportCap;
-	uint8_t                             DevREV[3];
-	uint8_t                             FWREV[3];
-	uint8_t                             Flag_ReceviedDevInfor;
+	uint8_t                             HWREV[3];
+	uint8_t                             STM32APPREV[3];
     uint8_t                             STMBootVersion[3];
+    uint8_t                             BLEAPPREV[3];
+    uint8_t                             BLEBOOTREV[3];
+    uint8_t                             BLESDREV[3];
     uint8_t                             protocolVersion;
+    uint8_t                             batLevel;
+	uint8_t                             Flag_ReceviedDevInfor; 
     int8_t                              rssi;
     uint8_t                             sn[SN_NUM_LEN];
     ble_gap_addr_t                      MACaddr;
@@ -67,7 +71,23 @@ typedef struct
     bool                isValid;
 }BLE_SCAN_LIST_T;
 
-/* type struct define for ble handler task */
+/* type struct define for connect and bonding status */
+typedef enum
+{
+    STATUS_NONE = 0,
+    STATUS_WRITE_PIN,
+    STATUS_WRITE_PIN_WAIT,
+    STATUS_WRITE_TIME,
+    STATUS_WRITE_TIME_WAIT,
+    STATUS_WRITE_MONITOR_TEMPLATE,
+    STATUS_WRITE_MONITOR_TEMPLATE_WAIT,
+    STATUS_START_SYNC_DATA,
+    STATUS_START_SYNC_DATA_WAIT,
+    STATUS_CONNECT_BONDING_COMPLATE
+}CONNECT_BONDING_STATUS_T;
+
+/******************* event define for task handler **********************************/
+/* ble handler task */
 typedef enum
 {
     EVENT_APP_BLE_DEFAULT =0,
@@ -86,24 +106,21 @@ typedef struct
     BLE_EVENT_ID_T      eventID;
 }BLE_MSG_T;
 
-/* type struct define for connect and bonding status */
+/* app device manage task */
 typedef enum
 {
-    STATUS_NONE = 0,
-    STATUS_WRITE_PIN,
-    STATUS_WRITE_PIN_WAIT,
-    STATUS_WRITE_TIME,
-    STATUS_WRITE_TIME_WAIT,
-    STATUS_WRITE_MONITOR_TEMPLATE,
-    STATUS_WRITE_MONITOR_TEMPLATE_WAIT,
-    STATUS_START_SYNC_DATA,
-    STATUS_START_SYNC_DATA_WAIT,
-    STATUS_CONNECT_BONDING_COMPLATE
-}CONNECT_BONDING_STATUS_T;
+    EVENT_APP_DEVICE_MANAGE_DEFAULT = 0,
+    EVENT_APP_DEVICE_MANAGE_GET_BATLEVEL_VERSION
+}APP_DEVICE_MANAGE_EVENT_ID_T;
 
+typedef struct
+{
+    APP_DEVICE_MANAGE_EVENT_ID_T        eventID;
+    uint8_t                             len;
+    uint8_t                             *p_data;
+    uint16_t                            conn_handle;
+}APP_DEVICE_MANAGE_MSG_T;
 
-/* Queue size define */
-#define BLE_EVENT_QUEUE_SIZE        10
 
 
 /* gloable variables declare */
@@ -111,6 +128,7 @@ extern DeviceInfomation_t  			g_DeviceInformation;                //硬件设备
 extern BLE_SCAN_LIST_T              gScanList[];  
 extern ble_db_discovery_t           g_ble_db_discovery[]; /**< list of DB structures used by the database discovery module. */
 extern CONNECT_BONDING_STATUS_T     g_connect_bonding_status;
+extern uint8_t                      g_buf_bat_version[VERSION_INFO_BUF_LEN];
 
 #endif // __MAIN__
 

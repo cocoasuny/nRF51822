@@ -102,8 +102,7 @@ void ble_central_monitor_template_write(DeviceInfomation_t *p_dev)
     len = (uint8_t)(p_dev->monitor_template.len + 2);
     buf_send = buf;
     
-    /* 分段写方案数据至设备端 */
-    
+    /* 分段写方案数据至设备端(这种处理方式不是很好，后面需要改改) */   
     while(len)
     {
         if(len > 20)
@@ -118,11 +117,7 @@ void ble_central_monitor_template_write(DeviceInfomation_t *p_dev)
                         buf_send,send_len);
         buf_send += send_len;
         len -= send_len;
-        nrf_delay_us(10000);
-        nrf_delay_us(10000);
-        nrf_delay_us(10000);
-        nrf_delay_us(10000);
-        nrf_delay_us(10000);
+        nrf_delay_ms(20);
     }
 }
 
