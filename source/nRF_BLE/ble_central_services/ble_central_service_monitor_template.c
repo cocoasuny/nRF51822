@@ -89,35 +89,38 @@ void ble_central_monitor_template_write(DeviceInfomation_t *p_dev)
     uint8_t         send_len = 0;
     uint8_t         *buf_send;
 
-    if(p_dev->monitor_template.len < MONITOR_TEMPLATE_DATA_MAX_LEN) //监护方案数据长度有效
+    if(p_dev->conn_handle != BLE_CONN_HANDLE_INVALID)  //仍然连接中
     {
-        buf[0] = (uint8_t)(p_dev->monitor_template.len >> 8);
-        buf[1] = (uint8_t)(p_dev->monitor_template.len);    //前两字节为监护方案长度
+        if(p_dev->monitor_template.len < MONITOR_TEMPLATE_DATA_MAX_LEN) //监护方案数据长度有效
+        {
+            buf[0] = (uint8_t)(p_dev->monitor_template.len >> 8);
+            buf[1] = (uint8_t)(p_dev->monitor_template.len);    //前两字节为监护方案长度
+            
+            for(i=0;i<(p_dev->monitor_template.len);i++)
+            {
+                buf[i+2] = p_dev->monitor_template.p_contex[i];
+            }
+        }
+        len = (uint8_t)(p_dev->monitor_template.len + 2);
+        buf_send = buf;
         
-        for(i=0;i<(p_dev->monitor_template.len);i++)
+        /* 分段写方案数据至设备端(这种处理方式不是很好，后面需要改改) */   
+        while(len)
         {
-            buf[i+2] = p_dev->monitor_template.p_contex[i];
+            if(len > 20)
+            {
+                send_len = 20;
+            }
+            else
+            {
+                send_len = len;
+            }
+            write_to_client(p_dev->conn_handle,p_dev->monitor_template_service.monitorTemplateSetCharW.char_handle,
+                            buf_send,send_len);
+            buf_send += send_len;
+            len -= send_len;
+            nrf_delay_ms(20);
         }
-    }
-    len = (uint8_t)(p_dev->monitor_template.len + 2);
-    buf_send = buf;
-    
-    /* 分段写方案数据至设备端(这种处理方式不是很好，后面需要改改) */   
-    while(len)
-    {
-        if(len > 20)
-        {
-            send_len = 20;
-        }
-        else
-        {
-            send_len = len;
-        }
-        write_to_client(p_dev->conn_handle,p_dev->monitor_template_service.monitorTemplateSetCharW.char_handle,
-                        buf_send,send_len);
-        buf_send += send_len;
-        len -= send_len;
-        nrf_delay_ms(20);
     }
 }
 

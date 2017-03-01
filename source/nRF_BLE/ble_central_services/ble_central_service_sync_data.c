@@ -57,7 +57,7 @@ static void tx_buffer_process(void);
 static void on_hvx (const ble_evt_t * p_ble_evt);
 static void on_write_rsp (const ble_evt_t * p_ble_evt);
 static void on_read_rsp (const ble_evt_t * p_ble_evt);
-static void write_to_client(uint16_t conn_handle,uint16_t char_handle, uint8_t *pData,uint8_t length);
+static void sync_write_to_client(uint16_t conn_handle,uint16_t char_handle, uint8_t *pData,uint8_t length);
 
 /**
   * @brief  init the device information manage service
@@ -77,6 +77,39 @@ uint32_t ble_central_service_sync_data_init(sync_data_service_t *p_sync_data_ser
     APP_ERROR_CHECK(err_code);
 
     return ble_db_discovery_evt_register(&bas_uuid);    
+}
+/**
+  * @brief  ble central start data sync
+  * @param  *p_dev
+  * @retval None
+  */
+void ble_central_start_sync_data(DeviceInfomation_t *p_dev)
+{
+    uint8_t cmd = 0x01;
+    
+    if(p_dev->conn_handle != BLE_CONN_HANDLE_INVALID) //设备仍然连接中
+    {
+        /* write the start data sync cmd to the peer */
+        sync_write_to_client(p_dev->conn_handle,p_dev->sync_data_service.syncDataSwitchCharW.char_handle,&cmd,1);
+    }
+}
+/**
+  * @brief  ble central ack the synced data length to the peer
+  * @param  *p_dev,len
+  * @retval None
+  */
+void ble_central_ack_sync_data_len(DeviceInfomation_t *p_dev,uint16_t len)
+{
+    uint8_t buf[2] = {0};
+    
+    buf[0] = (uint8_t)(len >> 8);
+    buf[1] = (uint8_t)(len);
+    
+    if(p_dev->conn_handle != BLE_CONN_HANDLE_INVALID) //设备仍然连接中
+    {
+        /* ack the synced len to the peer */
+        sync_write_to_client(p_dev->conn_handle,p_dev->sync_data_service.syncDataDoneCharW.char_handle,buf,2);
+    }    
 }
 
 /**
@@ -298,16 +331,57 @@ static void tx_buffer_process(void)
  */
 static void on_hvx (const ble_evt_t * p_ble_evt)
 {    
-    // Check if this notification is a battery level notification.
-    if(p_ble_evt->evt.gattc_evt.params.hvx.handle
-            == g_DeviceInformation.sync_data_service.syncDataCharR.char_handle)
+    #define MAX_LEN_ONE_PACKET  250
+    
+    static bool                 flag_get_rx_data_len = true;
+    static uint16_t             current_data_len = 0;
+    static uint16_t             need_rx_data_len = 0;
+    static uint16_t             rx_data_cnt = 0;
+    static uint8_t              buf[MAX_LEN_ONE_PACKET] = {0};
+    
+    // Check if this notification is a data sync notification.
+    if((p_ble_evt->evt.gattc_evt.params.hvx.handle
+            == g_DeviceInformation.sync_data_service.syncDataCharR.char_handle) &&
+        (p_ble_evt->evt.gap_evt.conn_handle == g_DeviceInformation.conn_handle)     //仍然在连接中
+    )
     {    
-//        #ifdef DEBUG_BLE_SYNC_DATA
-//            printf("get bat level:%d,Len:%d\r\n",p_ble_evt->evt.gattc_evt.params.hvx.data[0],
-//                                                 p_ble_evt->evt.gattc_evt.params.hvx.len
-//                    );
-//        #endif
+        #ifdef DEBUG_BLE_SYNC_DATA
+            uint8_t     i=0;
         
+//            printf("rx data:");
+//            for(i=0;i<p_ble_evt->evt.gattc_evt.params.hvx.len;i++)
+//            {
+//                printf("0x%02x,",p_ble_evt->evt.gattc_evt.params.hvx.data[i]);
+//            }
+//            printf("\r\n");
+        #endif
+        
+        if(flag_get_rx_data_len == true)
+        {
+            current_data_len = (uint16_t)(p_ble_evt->evt.gattc_evt.params.hvx.data[0]*256 + 
+                                     p_ble_evt->evt.gattc_evt.params.hvx.data[1]);
+            need_rx_data_len = current_data_len + 15;
+            flag_get_rx_data_len = false;
+            rx_data_cnt = 0;
+            memset(buf,0,MAX_LEN_ONE_PACKET);
+        }
+                
+        if(need_rx_data_len < MAX_LEN_ONE_PACKET)
+        {
+            memcpy(buf+rx_data_cnt,p_ble_evt->evt.gattc_evt.params.hvx.data,p_ble_evt->evt.gattc_evt.params.hvx.len);
+            rx_data_cnt = rx_data_cnt + p_ble_evt->evt.gattc_evt.params.hvx.len;
+            
+            if(rx_data_cnt >= need_rx_data_len)
+            {
+                flag_get_rx_data_len = true;
+                printf("rx complate\r\n");
+                for(i=0;i<rx_data_cnt;i++)
+                {
+                    printf("0x%02x,",buf[i]);
+                }
+                printf("\r\n");
+            }
+        }
     }
 }
 
@@ -366,7 +440,7 @@ static void on_read_rsp (const ble_evt_t * p_ble_evt)
   * @param  None
   * @retval None
   */
-static void write_to_client(uint16_t conn_handle,uint16_t char_handle, uint8_t *pData,uint8_t length)
+static void sync_write_to_client(uint16_t conn_handle,uint16_t char_handle, uint8_t *pData,uint8_t length)
 {
     tx_message_t * p_msg;
     

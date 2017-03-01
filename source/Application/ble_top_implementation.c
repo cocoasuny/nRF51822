@@ -209,12 +209,18 @@ void ble_task_handler(void *p_event_data,uint16_t event_size)
         {
             /* test */
             g_DeviceInformation.monitor_template.len = 53;
-            g_DeviceInformation.monitor_template.p_contex = "#1|09:00-15:00|1111111|0|111|000|0|0|1|0|16|3600|0|0#";
+            g_DeviceInformation.monitor_template.p_contex = "#1|09:00-09:10|1111111|0|111|000|0|0|1|0|16|3600|0|0#";
             
             /* 设置监护方案 */            
             ble_central_monitor_template_write(&g_DeviceInformation);
         }
-        break;        
+        break;
+        case EVENT_APP_BLE_START_SYNC_DATA:
+        {
+            printf("start sync data\r\n");
+            ble_central_start_sync_data(&g_DeviceInformation);
+        }
+        break;
         case EVENT_APP_BLE_SERVICE_CHAR_FIND_COMPLATE:
         {
             printf("EVENT_APP_BLE_SERVICE_CHAR_FIND_COMPLATE\r\n");
@@ -752,6 +758,11 @@ static void vTimerConnectBondingStatusPollCB(void *p_context)
             break;
             case STATUS_START_SYNC_DATA:
             {
+                bleEventMsgValue.eventID = EVENT_APP_BLE_START_SYNC_DATA;
+
+                err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
+                APP_ERROR_CHECK(err_code);                 
+                
                 g_connect_bonding_status = STATUS_CONNECT_BONDING_COMPLATE;
                 
                 /* stop the time when connect and bonding progress complate */

@@ -26,6 +26,8 @@ uint32_t ble_central_service_sync_data_init(sync_data_service_t *p_sync_data_ser
 void reset_ble_central_sync_data_service(sync_data_service_t *p_sync_data_service);
 void ble_sync_data_db_discovery_evt_handler(DeviceInfomation_t *p_dev_info, ble_db_discovery_evt_t * p_evt);
 void ble_sync_data_ble_evt_handler(ble_evt_t * p_ble_evt);
+void ble_central_start_sync_data(DeviceInfomation_t *p_dev);
+void ble_central_ack_sync_data_len(DeviceInfomation_t *p_dev,uint16_t len);
 
 
 #endif /* __BLE_CENTRAL_SERVICE_SYNC_DATA_H_ */
