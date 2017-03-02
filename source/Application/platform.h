@@ -65,6 +65,7 @@
 #define SN_NUM_LEN          4    //序列号长度：4字节
 #define MONITOR_TEMPLATE_DATA_MAX_LEN 		80  //监护方案最大长度
 #define VERSION_INFO_BUF_LEN                20  //蓝牙Central端接收设备电量及版本信息长度
+#define MAX_LEN_ONE_PACKET                  250 //数据同步过程中，一包数据最大长度
 
 /*  Define the max event size and event queue size      */
 #define SCHED_MAX_EVENT_DATA_SIZE           128

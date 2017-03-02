@@ -185,6 +185,9 @@ void on_ble_central_evt(const ble_evt_t * const p_ble_evt)
             /* Reset all the service and char */
             reset_ble_central_all_service();
             
+            /* Reset the data sync variables */
+            reset_data_sync();
+            
             /* stop the time to poll the character find status */
             stop_character_find_status_manage_timer(&g_DeviceInformation);
             

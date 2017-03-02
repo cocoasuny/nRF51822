@@ -330,15 +330,7 @@ static void tx_buffer_process(void)
  * @param[in] p_ble_evt   Pointer to the BLE event received.
  */
 static void on_hvx (const ble_evt_t * p_ble_evt)
-{    
-    #define MAX_LEN_ONE_PACKET  250
-    
-    static bool                 flag_get_rx_data_len = true;
-    static uint16_t             current_data_len = 0;
-    static uint16_t             need_rx_data_len = 0;
-    static uint16_t             rx_data_cnt = 0;
-    static uint8_t              buf[MAX_LEN_ONE_PACKET] = {0};
-    
+{      
     // Check if this notification is a data sync notification.
     if((p_ble_evt->evt.gattc_evt.params.hvx.handle
             == g_DeviceInformation.sync_data_service.syncDataCharR.char_handle) &&
@@ -363,12 +355,12 @@ static void on_hvx (const ble_evt_t * p_ble_evt)
             need_rx_data_len = current_data_len + 15;
             flag_get_rx_data_len = false;
             rx_data_cnt = 0;
-            memset(buf,0,MAX_LEN_ONE_PACKET);
+            memset(g_data_syncbuf,0,MAX_LEN_ONE_PACKET);
         }
                 
         if(need_rx_data_len < MAX_LEN_ONE_PACKET)
         {
-            memcpy(buf+rx_data_cnt,p_ble_evt->evt.gattc_evt.params.hvx.data,p_ble_evt->evt.gattc_evt.params.hvx.len);
+            memcpy(g_data_syncbuf+rx_data_cnt,p_ble_evt->evt.gattc_evt.params.hvx.data,p_ble_evt->evt.gattc_evt.params.hvx.len);
             rx_data_cnt = rx_data_cnt + p_ble_evt->evt.gattc_evt.params.hvx.len;
             
             if(rx_data_cnt >= need_rx_data_len)
@@ -377,7 +369,7 @@ static void on_hvx (const ble_evt_t * p_ble_evt)
                 printf("rx complate\r\n");
                 for(i=0;i<rx_data_cnt;i++)
                 {
-                    printf("0x%02x,",buf[i]);
+                    printf("0x%02x,",g_data_syncbuf[i]);
                 }
                 printf("\r\n");
             }

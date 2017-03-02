@@ -55,6 +55,7 @@
 #include "ble_central_service_sync_data.h"
 #include "nrf_delay.h"
 #include "app_device_manage.h"
+#include "app_data_sync.h"
 
 
 

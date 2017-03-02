@@ -420,6 +420,11 @@
               <FileType>1</FileType>
               <FilePath>..\source\Application\app_device_manage.c</FilePath>
             </File>
+            <File>
+              <FileName>app_data_sync.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\Application\app_data_sync.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
