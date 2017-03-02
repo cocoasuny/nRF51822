@@ -215,12 +215,6 @@ void ble_task_handler(void *p_event_data,uint16_t event_size)
             ble_central_monitor_template_write(&g_DeviceInformation);
         }
         break;
-        case EVENT_APP_BLE_START_SYNC_DATA:
-        {
-            printf("start sync data\r\n");
-            ble_central_start_sync_data(&g_DeviceInformation);
-        }
-        break;
         case EVENT_APP_BLE_SERVICE_CHAR_FIND_COMPLATE:
         {
             printf("EVENT_APP_BLE_SERVICE_CHAR_FIND_COMPLATE\r\n");
@@ -719,6 +713,7 @@ static void vTimerCharFindStatusPollCB(void *p_context)
 static void vTimerConnectBondingStatusPollCB(void *p_context)
 {
     BLE_MSG_T               bleEventMsgValue;
+    APP_DATA_SYNC_MSG_T     syncDataEventMsgValue;
     uint32_t                err_code = NRF_ERROR_NULL;
     
     if(g_DeviceInformation.isNRFBusy == false)
@@ -758,9 +753,9 @@ static void vTimerConnectBondingStatusPollCB(void *p_context)
             break;
             case STATUS_START_SYNC_DATA:
             {
-                bleEventMsgValue.eventID = EVENT_APP_BLE_START_SYNC_DATA;
+                syncDataEventMsgValue.eventID = EVENT_APP_DATA_SYNC_START_SYNC_DATA;
 
-                err_code = app_sched_event_put(&bleEventMsgValue,sizeof(bleEventMsgValue),ble_task_handler);
+                err_code = app_sched_event_put(&syncDataEventMsgValue,sizeof(syncDataEventMsgValue),app_data_sync_task_handler);
                 APP_ERROR_CHECK(err_code);                 
                 
                 g_connect_bonding_status = STATUS_CONNECT_BONDING_COMPLATE;

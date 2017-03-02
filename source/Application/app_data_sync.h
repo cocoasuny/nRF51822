@@ -29,6 +29,7 @@ extern bool                 flag_get_rx_data_len;
 
 /* function declare */
 void reset_data_sync(void);
+void app_data_sync_task_handler(void *p_event_data,uint16_t event_size);
 
 
 #endif /* __APP_DATA_SYNC_H_ */

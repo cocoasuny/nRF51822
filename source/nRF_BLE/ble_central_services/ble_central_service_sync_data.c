@@ -330,7 +330,10 @@ static void tx_buffer_process(void)
  * @param[in] p_ble_evt   Pointer to the BLE event received.
  */
 static void on_hvx (const ble_evt_t * p_ble_evt)
-{      
+{
+    APP_DATA_SYNC_MSG_T     syncDataEventMsgValue; 
+    uint32_t                err_code = NRF_ERROR_NULL;
+    
     // Check if this notification is a data sync notification.
     if((p_ble_evt->evt.gattc_evt.params.hvx.handle
             == g_DeviceInformation.sync_data_service.syncDataCharR.char_handle) &&
@@ -338,7 +341,7 @@ static void on_hvx (const ble_evt_t * p_ble_evt)
     )
     {    
         #ifdef DEBUG_BLE_SYNC_DATA
-            uint8_t     i=0;
+//            uint8_t     i=0;
         
 //            printf("rx data:");
 //            for(i=0;i<p_ble_evt->evt.gattc_evt.params.hvx.len;i++)
@@ -366,12 +369,14 @@ static void on_hvx (const ble_evt_t * p_ble_evt)
             if(rx_data_cnt >= need_rx_data_len)
             {
                 flag_get_rx_data_len = true;
-                printf("rx complate\r\n");
-                for(i=0;i<rx_data_cnt;i++)
-                {
-                    printf("0x%02x,",g_data_syncbuf[i]);
-                }
-                printf("\r\n");
+                
+                syncDataEventMsgValue.eventID = EVENT_APP_DATA_SYNC_RX_DATA;
+                syncDataEventMsgValue.conn_handle = p_ble_evt->evt.gattc_evt.params.hvx.handle;
+                syncDataEventMsgValue.len = need_rx_data_len;
+                syncDataEventMsgValue.p_data = g_data_syncbuf;
+
+                err_code = app_sched_event_put(&syncDataEventMsgValue,sizeof(syncDataEventMsgValue),app_data_sync_task_handler);
+                APP_ERROR_CHECK(err_code); 
             }
         }
     }

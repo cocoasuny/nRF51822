@@ -98,7 +98,6 @@ typedef enum
     EVENT_APP_BLE_PASSKEY_WRITE,
     EVENT_APP_BLE_SYNC_TIME,
     EVENT_APP_BLE_MONITOR_TEMPLATE_WRITE,
-    EVENT_APP_BLE_START_SYNC_DATA,
     EVENT_APP_BLE_SERVICE_CHAR_FIND_COMPLATE
 }BLE_EVENT_ID_T;
 
@@ -121,6 +120,23 @@ typedef struct
     uint8_t                             *p_data;
     uint16_t                            conn_handle;
 }APP_DEVICE_MANAGE_MSG_T;
+
+/* app data sync task */
+typedef enum
+{
+    EVENT_APP_DATA_SYNC_DEFAULT = 0,
+    EVENT_APP_DATA_SYNC_START_SYNC_DATA,
+    EVENT_APP_DATA_SYNC_RX_DATA,
+    EVENT_APP_DATA_SYNC_ACK_LEN
+}APP_DATA_SYNC_EVENT_ID_T;
+
+typedef struct
+{
+    APP_DATA_SYNC_EVENT_ID_T            eventID;
+    uint8_t                             len;
+    uint8_t                             *p_data;
+    uint16_t                            conn_handle;    
+}APP_DATA_SYNC_MSG_T;
 
 
 
