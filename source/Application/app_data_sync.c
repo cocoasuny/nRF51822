@@ -47,7 +47,7 @@ void app_data_sync_task_handler(void *p_event_data,uint16_t event_size)
         break;
         case EVENT_APP_DATA_SYNC_RX_DATA:
         {
-            uint8_t i=0;
+//            uint8_t i=0;
 //            printf("Rx Data:%d\r\n",dataSyncEventMsgValue->len);
 //            for(i=0;i<dataSyncEventMsgValue->len;i++)
 //            {

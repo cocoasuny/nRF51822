@@ -45,10 +45,16 @@
     #define UART_RX_BUF_SIZE 1            /**< UART RX buffer size. */
 #endif
 
-#define RX_PIN_NUMBER  				11    // UART RX pin number.
-#define TX_PIN_NUMBER  				9     // UART TX pin number.
+#define RX_PIN_NUMBER  				18    // UART RX pin number.
+#define TX_PIN_NUMBER  				20    // UART TX pin number.
 #define CTS_PIN_NUMBER 				10    // UART Clear To Send pin number. Not used if HWFC is set to false
 #define RTS_PIN_NUMBER 				8     // Not used if HWFC is set to false
+
+/*spi pin define */
+#define SPIS_MISO_PIN               8     // SPI MISO signal. 
+#define SPIS_CSN_PIN                3     // SPI CSN signal. 
+#define SPIS_MOSI_PIN               9     // SPI MOSI signal. 
+#define SPIS_SCK_PIN                15    // SPI SCK signal. 
 
 /* gpio define for leds */
 #define LED_1          21

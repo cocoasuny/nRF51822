@@ -38,6 +38,7 @@ void bsp_init(void)
 {
 	/* uart init */
 	uart_init();
+    bsp_spi_slave_config();
     
     /* app timers init */
     timers_init(MODE_INTERRUPT);

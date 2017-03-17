@@ -56,6 +56,7 @@
 #include "nrf_delay.h"
 #include "app_device_manage.h"
 #include "app_data_sync.h"
+#include "bsp_spis.h"
 
 
 

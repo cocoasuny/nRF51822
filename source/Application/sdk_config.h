@@ -1055,7 +1055,7 @@
 // <e> SPIS_ENABLED - nrf_drv_spis - SPI Slave driver
 //==========================================================
 #ifndef SPIS_ENABLED
-#define SPIS_ENABLED 0
+#define SPIS_ENABLED 1
 #endif
 #if  SPIS_ENABLED
 // <o> SPIS_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
@@ -1095,14 +1095,14 @@
 
 
 #ifndef SPIS_DEFAULT_DEF
-#define SPIS_DEFAULT_DEF 255
+#define SPIS_DEFAULT_DEF 0xAA
 #endif
 
 // <o> SPIS_DEFAULT_ORC - SPIS default ORC character  <0-255> 
 
 
 #ifndef SPIS_DEFAULT_ORC
-#define SPIS_DEFAULT_ORC 255
+#define SPIS_DEFAULT_ORC 0xAB
 #endif
 
 // <q> SPIS0_ENABLED  - Enable SPIS0 instance
@@ -1116,7 +1116,7 @@
  
 
 #ifndef SPIS1_ENABLED
-#define SPIS1_ENABLED 0
+#define SPIS1_ENABLED 1
 #endif
 
 // <q> SPIS2_ENABLED  - Enable SPIS2 instance
@@ -1132,7 +1132,7 @@
 // <e> SPI_ENABLED - nrf_drv_spi - SPI/SPIM peripheral driver
 //==========================================================
 #ifndef SPI_ENABLED
-#define SPI_ENABLED 0
+#define SPI_ENABLED 1
 #endif
 #if  SPI_ENABLED
 // <e> SPI_CONFIG_LOG_ENABLED - Enables logging in the module.
